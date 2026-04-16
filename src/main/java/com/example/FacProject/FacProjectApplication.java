@@ -1,13 +1,13 @@
-package com.example.TestSpring;
+package com.example.FacProject;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TestSpringApplication {
+public class FacProjectApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TestSpringApplication.class, args);
+		SpringApplication.run(FacProjectApplication.class, args);
 	}
 
 }
