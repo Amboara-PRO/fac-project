@@ -1,0 +1,447 @@
+openapi: 3.1.1
+info:
+  title: FAC project API
+  description: FAC project API documentation
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /communities:
+    post:
+      summary: create a new community
+      description: return the new created community
+      parameters:
+        - $ref: '#/components/parameters/OpeningAuthParam'
+        - name: region
+          in: query
+          required: true
+          description: Community's location
+          schema:
+            $ref: '#/components/schemas/RegionEnum'
+          example: antananarivo
+        - name: speciality
+          in: query
+          required: true
+          description: Community's speciality
+          schema:
+            $ref: '#/components/schemas/CommunitySpecialityEnum'
+          example: riceGrowing
+      requestBody:
+        description: At least 10 registered members, including 5 with at least 6 months' seniority within the federation, and specific positions held by members, which may be included in the minimum of 10 members
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Person'
+            examples:
+              newCommunityMembers:
+                $ref: './components/examples.yaml#/Members'
+
+      responses:
+        '201':
+          description: Community created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Community'
+              examples:
+                newCommunity:
+                  $ref: './components/examples.yaml#/Community'
+
+        '404':
+          description: Region not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Your community's region doesn't exist
+        '400':
+          description: Member list is not provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Request body is required
+
+  /communities/members:
+    post:
+      summary: Add a new member in a community
+      description: Return the new member in the community
+      parameters:
+        - name: confirmedMemberId
+          in: query
+          required: true
+          description: The id of the confirmed member with more than 90 days of seniority
+          schema:
+            type: integer
+          example: 1
+        - name: membershipFees
+          in: query
+          required: true
+          description: Community's membership fees
+          schema:
+            type: number
+          example: 50,000
+      requestBody:
+        description: The new member to join
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+            examples:
+              newMember:
+                $ref: './components/examples.yaml#/Person'
+      responses:
+        '201':
+          description: New member added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+              examples:
+                newCommunity:
+                  $ref: './components/examples.yaml#/Member'
+        '404':
+          description: The id of the confirmed member not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The id of the confirmed member doesn't exist
+        '400':
+          description: New person's information is not provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Request body is required
+    delete:
+      summary: Delete member from a community
+      description: Return the deleted member from the community
+      parameters:
+        - name: memberId
+          in: query
+          required: true
+          description: The id of the member to delete from a community
+          schema:
+            type: integer
+          example: 11
+      responses:
+        '200':
+          description: Member deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+              examples:
+                deletedMember:
+                  $ref: './components/examples.yaml#/Person'
+        '404':
+          description: The id of the member not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The id of the member doesn't exist
+
+  /communities/contributions:
+    post:
+      summary: Add a contribution in the community's box
+      description: return contribution's amount, receipt date and payment method
+      requestBody:
+        description: The contribution to add in the community's box
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contribution'
+            examples:
+              newContribution:
+                $ref: './components/examples.yaml#/Contribution'
+      responses:
+        '201':
+          description: Contribution added in the community's box
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContributionHistory'
+              examples:
+                newContribution:
+                  $ref: './components/examples.yaml#/ContributionHistory'
+
+        '400':
+          description: The contribution is not provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Request body is required
+
+  /communities/contributions/federation:
+    put:
+      summary: Give a percentage of the contribution to the federation in a periodicity
+      description: return contribution's amount given to to federation in a periodicity
+      parameters:
+        - name: contributionPercentage
+          in: query
+          required: true
+          description: The percentage of contribution to give to the federation
+          schema:
+            type: integer
+          example: 25
+        - name: contributionPeriodicity
+          in: query
+          required: true
+          description: The percentage of contribution to give to the federation
+          schema:
+            $ref: '#/components/schemas/PeriodicityEnum'
+          example: "monthly"
+
+      responses:
+        '200':
+          description: contributions added
+          content:
+            application/json:
+              schema:
+                type: number
+                format: double
+                minimum: 0
+              example: 2500
+
+        '404':
+          description: No contribution found in the box of the community
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The Box doesn't have enough contribution to give this month
+
+components:
+  schemas:
+    PaymentMethodEnum:
+      type: string
+      enum:
+        - cash
+        - bankTransfer
+        - mobileMoney
+
+    PeriodicityEnum:
+      type: string
+      enum:
+        - monthly
+        - annual
+        - punctual
+
+    ProfessionEnum:
+      type: string
+      enum:
+        - producer
+        - collector
+
+    MemberStatusEnum:
+      type: string
+      enum:
+        - president
+        - deputyPresident
+        - treasurer
+        - secretary
+        - confirmed
+        - junior
+      description: Only the roles of confirmed member or junior member can be held by multiple members
+
+    GenderEnum:
+      type: string
+      enum:
+        - male
+        - female
+
+    RegionEnum:
+      type: string
+      enum:
+        - antananarivo
+        - toamasina
+
+    CommunitySpecialityEnum:
+      type: string
+      enum:
+        - beekeeping
+        - fishFarming
+        - riceGrowing
+
+    Person:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Must be unique within the system
+        firstName:
+          type: string
+        lastName:
+          type: string
+        birthDate:
+          type: string
+          format: date-time
+        gender:
+          $ref: '#/components/schemas/GenderEnum'
+        address:
+          type: string
+        profession:
+          $ref: '#/components/schemas/ProfessionEnum'
+        phone:
+          type: string
+        email:
+          type: string
+      discriminator:
+        propertyName: type
+      required:
+        - id
+
+    Member:
+      allOf:
+        - $ref: '#/components/schemas/Person'
+        - type: object
+          properties:
+            joiningDate:
+              type: string
+              format: date-time
+            status:
+              $ref: '#/components/schemas/MemberStatusEnum'
+
+    Organization:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Must be unique within the system
+        name:
+          type: string
+          description: Must be unique within the system
+      discriminator:
+        propertyName: type
+      required:
+        - id
+        - name
+
+    Community:
+      allOf:
+        - $ref: '#/components/schemas/Organization'
+        - type: object
+          properties:
+            members:
+              type: array
+              items:
+                $ref: '#/components/schemas/Member'
+            region:
+              $ref: '#/components/schemas/RegionEnum'
+            speciality:
+              $ref: '#/components/schemas/CommunitySpecialityEnum'
+            creationDateTime:
+              type: string
+              format: date-time
+
+    Federation:
+      allOf:
+        - $ref: '#/components/schemas/Organization'
+        - type: object
+          properties:
+            managers:
+              type: array
+              items:
+                $ref: '#/components/schemas/Member'
+              description: The president must have previously held the position of president of a local authority or currently hold the position of president
+            communities:
+              type: array
+              items:
+                $ref: '#/components/schemas/Community'
+
+    Activity:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        leader:
+          $ref: '#/components/schemas/Organization'
+      required:
+        - id
+        - title
+        - leader
+
+    Contribution:
+      type: object
+      properties:
+        id:
+          type: integer
+        periodicity:
+          $ref: '#/components/schemas/PeriodicityEnum'
+        activity:
+          $ref: '#/components/schemas/Activity'
+        owner:
+          $ref: '#/components/schemas/Member'
+        amount:
+          type: number
+          format: double
+          minimum: 0
+
+    Box:
+      type: object
+      properties:
+        id:
+          type: integer
+        owner:
+          $ref: '#/components/schemas/Community'
+        contributions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contribution'
+
+    ContributionHistory:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+          minimum: 0
+        receiptDate:
+          type: string
+          format: date-time
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethodEnum'
+
+
+  parameters:
+    OpeningAuthParam:
+      name: auth
+      in: query
+      required: true
+      description: Federation opening authorization
+      schema:
+        type: string
+        example: Your community is allowed by the federation to be opened
+
