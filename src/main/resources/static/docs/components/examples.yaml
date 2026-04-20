@@ -470,7 +470,7 @@ Contribution:
       status: "junior"
     amount: 10000
 
-Activity:
+ActivityCommunity:
   summary: An activity from a community
   value:
     id: 1

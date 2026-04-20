@@ -163,7 +163,7 @@ paths:
                     type: string
                     example: The id of the member doesn't exist
 
-  /communities/contributions:
+  /communities/{communityId}/contributions:
     post:
       summary: Add a contribution in the community's box
       description: return contribution's amount, receipt date and payment method
@@ -199,47 +199,30 @@ paths:
                     type: string
                     example: Request body is required
 
-  /communities/contributions/federation:
-    put:
-      summary: Give a percentage of the contribution to the federation in a periodicity
-      description: return contribution's amount given to to federation in a periodicity
-      parameters:
-        - name: contributionPercentage
-          in: query
-          required: true
-          description: The percentage of contribution to give to the federation
-          schema:
-            type: integer
-          example: 25
-        - name: contributionPeriodicity
-          in: query
-          required: true
-          description: The percentage of contribution to give to the federation
-          schema:
-            $ref: '#/components/schemas/PeriodicityEnum'
-          example: "monthly"
+  /federation:
+    post:
+      summary: Create federation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Federation'
+        responses:
+          '201':
+            description: Federation created
 
+  /federation/communities:
+    get:
+      summary: Get all communities in federation
       responses:
         '200':
-          description: contributions added
           content:
             application/json:
               schema:
-                type: number
-                format: double
-                minimum: 0
-              example: 2500
-
-        '404':
-          description: No contribution found in the box of the community
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: The Box doesn't have enough contribution to give this month
+                type: array
+                items:
+                  $ref: '#/components/schemas/Community'
 
   /communities/{communityId}/accounts:
     post:
@@ -304,6 +287,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ActivityCommunity'
+            examples:
+              activity:
+                $ref: './components/examples.yaml#/ActivityCommunity'
       responses:
         '201':
           description: Activity created
@@ -337,6 +323,105 @@ paths:
       responses:
         '201':
           description: Activity created
+
+    get:
+      summary: Get federation activities
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActivityCommunity'
+
+  /federation/accounts:
+    post:
+      summary: Create federation account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+      responses:
+        '201':
+          description: Created
+        '409':
+          description: Cash already exists
+
+    get:
+      summary: Get federation accounts
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+
+  /communities/{communityId}/contributions/federation:
+    put:
+      summary: Give a percentage of the contribution to the federation in a periodicity
+      description: return contribution's amount given to to federation in a periodicity
+      parameters:
+        - name: communityId
+          in: path
+          required: true
+        - name: contributionPercentage
+          in: query
+          required: true
+          description: The percentage of contribution to give to the federation
+          schema:
+            type: integer
+          example: 25
+        - name: contributionPeriodicity
+          in: query
+          required: true
+          description: The percentage of contribution to give to the federation
+          schema:
+            $ref: '#/components/schemas/PeriodicityEnum'
+          example: "monthly"
+
+      responses:
+        '200':
+          description: contributions added
+          content:
+            application/json:
+              schema:
+                type: number
+                format: double
+                minimum: 0
+              example: 2500
+
+        '404':
+          description: No contribution found in the box of the community
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: The Box doesn't have enough contribution to give this month
+
+  /federation/statistics:
+    get:
+      summary: Federation statistics
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalCommunities:
+                    type: integer
+                  totalMembers:
+                    type: integer
+                  globalAttendanceRate:
+                    type: number
 
   /communities/{communityId}/activities/{activityId}/attendance:
     post:
@@ -450,15 +535,18 @@ components:
           type: integer
         attendanceRate:
           type: number
+        period:
+          type: string
           
     Attendance:
       type: object
-      required: [ memberId, present ]
+      required: [ memberId, status ]
       properties:
         memberId:
           type: integer
-        present:
-          type: boolean
+        status:
+          type: string
+          enum: [PRESENT, ABSENT, JUSTIFIED]
         justified:
           type: boolean
         reason:
@@ -495,7 +583,7 @@ components:
 
         type:
           type: string
-          enum: [ cash, bank, mobileMoney ]
+          enum: [ CASH, BANK, MOBILE_MONEY ]
 
         holderName:
           type: string
@@ -585,6 +673,7 @@ components:
 
     Person:
       type: object
+      required: [id]
       properties:
         id:
           type: integer
@@ -608,8 +697,6 @@ components:
           type: string
       discriminator:
         propertyName: type
-      required:
-        - id
 
     Member:
       allOf:
@@ -668,6 +755,10 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Community'
+            accounts:
+              type: array
+              items:
+                $ref: '#/components/schemas/Account'
 
     Activity:
       type: object
