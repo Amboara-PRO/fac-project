@@ -90,7 +90,7 @@ paths:
           description: Community's membership fees
           schema:
             type: number
-          example: 50,000
+          example: 50000
       requestBody:
         description: The new member to join
         required: true
@@ -241,8 +241,298 @@ paths:
                     type: string
                     example: The Box doesn't have enough contribution to give this month
 
+  /communities/{communityId}/accounts:
+    post:
+      summary: Create a financial account for a community
+      description: |
+        A community can have:
+        - Only ONE cash account
+        - Multiple bank or mobile money accounts
+      parameters:
+        - name: communityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+      responses:
+        '201':
+          description: Account created
+        '400':
+          description: Invalid data
+        '409':
+          description: Cash account already exists
+
+    get:
+      summary: Get all accounts of a community
+      parameters:
+        - name: communityId
+          in: path
+          required: true
+      responses:
+        '200':
+          description: Accounts list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+
+  /communities/{communityId}/activities:
+    post:
+      summary: Create a community activity
+      description: |
+        Types of activities:
+        - GENERAL_ASSEMBLY (monthly, mandatory for all)
+        - TRAINING (mandatory for juniors)
+        - EXCEPTIONAL (optional, configurable)
+      parameters:
+        - name: communityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityCommunity'
+      responses:
+        '201':
+          description: Activity created
+
+    get:
+      summary: Get all activities of a community
+      parameters:
+        - name: communityId
+          in: path
+          required: true
+      responses:
+        '200':
+          description: Activities list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActivityCommunity'
+
+  /federation/activities:
+    post:
+      summary: Create a federation activity
+      description: Federation can organize activities for communities
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityCommunity'
+      responses:
+        '201':
+          description: Activity created
+
+  /communities/{communityId}/activities/{activityId}/attendance:
+    post:
+      summary: Record attendance for an activity
+      description: |
+        - Members can be marked present, absent or justified
+        - External members are recorded but NOT counted in attendance rate
+      parameters:
+        - name: communityId
+          in: path
+          required: true
+        - name: activityId
+          in: path
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Attendance'
+      responses:
+        '201':
+          description: Attendance recorded
+
+    get:
+      summary: Get attendance list
+      parameters:
+        - name: communityId
+          in: path
+          required: true
+        - name: activityId
+          in: path
+          required: true
+      responses:
+        '200':
+          description: Attendance list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attendance'
+
+  /communities/{communityId}/statistics:
+    get:
+      summary: Get monthly community report
+      description: |
+        Includes:
+        - Total active members
+        - Global attendance rate
+      parameters:
+        - name: communityId
+          in: path
+          required: true
+      responses:
+        '200':
+          description: Community statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityStatistics'
+                
+  /members/{memberId}/statistics:
+    get:
+      summary: Get detailed statistics for a member
+      description: |
+        Includes:
+        - Attendance rate
+        - Total contributions
+        - Unpaid amount
+      parameters:
+        - name: memberId
+          in: path
+          required: true
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Member statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberStatistics'
+
 components:
   schemas:
+    MemberStatistics:
+      type: object
+      properties:
+        attendanceRate:
+          type: number
+        totalContribution:
+          type: number
+        unpaidAmount:
+          type: number
+
+    CommunityStatistics:
+      type: object
+      properties:
+        totalMembers:
+          type: integer
+        attendanceRate:
+          type: number
+          
+    Attendance:
+      type: object
+      required: [ memberId, present ]
+      properties:
+        memberId:
+          type: integer
+        present:
+          type: boolean
+        justified:
+          type: boolean
+        reason:
+          type: string
+        external:
+          type: boolean
+          
+    ActivityCommunity:
+      type: object
+      required: [ title, date, type, mandatory ]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        date:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum: [ GENERAL_ASSEMBLY, TRAINING, EXCEPTIONAL ]
+        mandatory:
+          type: boolean
+        target:
+          type: string
+          enum: [ ALL, JUNIORS ]
+
+    Account:
+      type: object
+      required: [ type, holderName, balance ]
+      properties:
+        id:
+          type: integer
+
+        type:
+          type: string
+          enum: [ cash, bank, mobileMoney ]
+
+        holderName:
+          type: string
+
+        balance:
+          type: number
+          format: double
+          description: Default currency MGA
+
+        bankName:
+          type: string
+          enum:
+            - BRED
+            - MCB
+            - BMOI
+            - BOA
+            - BGFI
+            - AFG
+            - ACCES_BANQUE
+            - BAOBAB
+            - SIPEM
+
+        accountNumber:
+          type: string
+          pattern: '^[0-9]{23}$'
+          description: Must follow Malagasy RIB format (23 digits)
+
+        mobileService:
+          type: string
+          enum:
+            - orangeMoney
+            - mvola
+            - airtelMoney
+
+        phone:
+          type: string
+
     PaymentMethodEnum:
       type: string
       enum:
