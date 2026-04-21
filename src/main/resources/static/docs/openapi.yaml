@@ -7,11 +7,6 @@ servers:
   - url: http://localhost:8080
 
 paths:
-  /ping:
-    get:
-      responses:
-        content:
-          text
   /communities:
     post:
       summary: create a new community
