@@ -194,6 +194,7 @@ paths:
       summary: Get all communities in federation
       responses:
         '200':
+          description: Return all communities in federation
           content:
             application/json:
               schema:
@@ -234,6 +235,9 @@ paths:
         - name: communityId
           in: path
           required: true
+          schema:
+            type: integer
+          example: 1
       responses:
         '200':
           description: Accounts list
@@ -277,6 +281,9 @@ paths:
         - name: communityId
           in: path
           required: true
+          schema:
+            type: integer
+          example: 1
       responses:
         '200':
           description: Activities list
@@ -305,6 +312,7 @@ paths:
       summary: Get federation activities
       responses:
         '200':
+          description: Return all federation activities
           content:
             application/json:
               schema:
@@ -331,6 +339,7 @@ paths:
       summary: Get federation accounts
       responses:
         '200':
+          description: Return all federation activities
           content:
             application/json:
               schema:
@@ -346,6 +355,10 @@ paths:
         - name: communityId
           in: path
           required: true
+          description: Community Id to check
+          schema:
+            type: integer
+          example: 1
         - name: contributionPercentage
           in: query
           required: true
@@ -442,9 +455,15 @@ paths:
         - name: communityId
           in: path
           required: true
+          schema:
+            type: integer
+          example: 1
         - name: activityId
           in: path
           required: true
+          schema:
+            type: integer
+          example: 1
       responses:
         '200':
           description: Attendance list
@@ -466,6 +485,9 @@ paths:
         - name: communityId
           in: path
           required: true
+          schema:
+            type: integer
+          example: 1
       responses:
         '200':
           description: Community statistics
@@ -473,7 +495,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommunityStatistics'
-                
+
   /members/{memberId}/statistics:
     get:
       summary: Get detailed statistics for a member
@@ -486,6 +508,9 @@ paths:
         - name: memberId
           in: path
           required: true
+          schema:
+            type: integer
+          example: 1
         - name: startDate
           in: query
           schema:
