@@ -1,5 +1,4 @@
 CREATE TYPE gender AS ENUM ('MALE', 'FEMALE');
-
 CREATE TYPE member_occupation AS ENUM (
     'JUNIOR',
     'SENIOR',
@@ -41,7 +40,6 @@ CREATE TABLE members (
 CREATE TABLE member_referees (
                                  member_id VARCHAR(9),
                                  referee_id VARCHAR(9),
-
                                  PRIMARY KEY (member_id, referee_id),
 
                                  FOREIGN KEY (member_id)

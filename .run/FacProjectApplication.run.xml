@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="FacProjectApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <envs>
+      <env name="JDBC_URL" value="jdbc:postgresql://localhost:5432/federation_db" />
+      <env name="PASSWORD" value="123456" />
+      <env name="USER" value="federation_db_manager" />
+    </envs>
+    <module name="FacProject.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.FacProject.FacProjectApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
