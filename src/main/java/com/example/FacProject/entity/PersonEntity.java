@@ -2,19 +2,20 @@ package com.example.FacProject.entity;
 
 import java.math.BigInteger;
 import java.time.Instant;
+import java.time.LocalDate;
 
 public class PersonEntity {
     protected String id;
     protected String firstName;
     protected String lastName;
-    protected Instant birthDate;
+    protected LocalDate birthDate;
     protected GenderEnum gender;
     protected String address;
     protected String profession;
-    protected BigInteger phoneNumber;
+    protected Long phoneNumber;
     protected String email;
 
-    public PersonEntity(String id, String firstName, String lastName, Instant birthDate, GenderEnum gender, String address, String profession, BigInteger phoneNumber, String email) {
+    public PersonEntity(String id, String firstName, String lastName, LocalDate birthDate, GenderEnum gender, String address, String profession, Long phoneNumber, String email) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -24,6 +25,9 @@ public class PersonEntity {
         this.profession = profession;
         this.phoneNumber = phoneNumber;
         this.email = email;
+    }
+
+    public PersonEntity() {
     }
 
     public String getId() {
@@ -50,11 +54,11 @@ public class PersonEntity {
         this.lastName = lastName;
     }
 
-    public Instant getBirthDate() {
+    public LocalDate getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(Instant birthDate) {
+    public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
     }
 
@@ -82,11 +86,11 @@ public class PersonEntity {
         this.profession = profession;
     }
 
-    public BigInteger getPhoneNumber() {
+    public Long getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(BigInteger phoneNumber) {
+    public void setPhoneNumber(Long phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 

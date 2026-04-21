@@ -1,15 +1,22 @@
 package com.example.FacProject.entity;
 
+import java.util.List;
+
 public class CollectivityEntity extends OrganizationEntity {
     private String location ;
     private Boolean federationApproval;
     private CollectivityStructureEntity structure;
+    private List<MemberEntity> members;
 
-    public CollectivityEntity(String id, String location, Boolean federationApproval, CollectivityStructureEntity structure) {
+    public CollectivityEntity(String id, String location, Boolean federationApproval, CollectivityStructureEntity structure, List<MemberEntity> members) {
         super(id);
         this.location = location;
         this.federationApproval = federationApproval;
         this.structure = structure;
+        this.members = members;
+    }
+
+    public CollectivityEntity() {
     }
 
     public String getLocation() {
@@ -34,5 +41,13 @@ public class CollectivityEntity extends OrganizationEntity {
 
     public void setStructure(CollectivityStructureEntity structure) {
         this.structure = structure;
+    }
+
+    public List<MemberEntity> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<MemberEntity> members) {
+        this.members = members;
     }
 }
