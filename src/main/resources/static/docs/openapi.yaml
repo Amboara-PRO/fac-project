@@ -520,10 +520,10 @@ components:
           type: string
         attendanceRate:
           type: number
-          description: Global attendance rate (%)
+          description: Global attendance rate
         upToDateMembersPercentage:
           type: number
-          description: % of members who paid contributions
+          description: percentage of members who paid contributions
         newMembersCount:
           type: integer
 
