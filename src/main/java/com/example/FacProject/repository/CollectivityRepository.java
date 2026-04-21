@@ -4,6 +4,8 @@ import com.example.FacProject.datasource.DataSource;
 import com.example.FacProject.entity.CollectivityEntity;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+
 @Repository
 public class CollectivityRepository {
     private DataSource dataSource;
