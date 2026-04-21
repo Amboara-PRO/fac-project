@@ -45,6 +45,9 @@ public class CollectivityService {
                 if(!dto.getFederationApproval()|| dto.getStructure() == null){
                     throw new BadRequestException("Collectivity without federation approval or structure missing");
                 }
+                if(dto.getLocation() == null){
+                    throw new BadRequestException("Collectivity without location missing");
+                }
                 memberValidator.validateMemberCount(dto.getMembers().size());
                 memberValidator.validateSeniorNumber(memberRepo.countSeniorMembers(dto.getMembers()));
                 List<MemberDTO>  listMembers = new ArrayList<>();
