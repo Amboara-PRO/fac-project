@@ -1,5 +1,6 @@
 package com.example.FacProject.repositories;
 
+import com.example.FacProject.config.DataSource;
 import com.example.FacProject.dto.CollectivityDTO;
 import com.example.FacProject.dto.CreateCollectivityDTO;
 import com.example.FacProject.entities.CollectivityEntity;
@@ -17,10 +18,10 @@ import java.util.logging.Level;
 
 @Repository
 public class CollectivityRepository {
-    private Connection connection;
+    private final DataSource dataSource;;
 
-    public CollectivityRepository(Connection connection) {
-        this.connection = connection;
+    public CollectivityRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public String create(CreateCollectivityDTO requests) {
@@ -28,23 +29,21 @@ public class CollectivityRepository {
             INSERT INTO collectivities (id, location, federation_approval)
             VALUES (?, ?, ?)
         """;
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            connection.setAutoCommit(false);
-            String id = UUID.randomUUID().toString().substring(0, 8);
+        try (Connection connection = dataSource.getConnection()) {
+            try(PreparedStatement ps = connection.prepareStatement(sql)){
+                connection.setAutoCommit(false);
+                String id = UUID.randomUUID().toString().substring(0, 9);
                 ps.setString(1, id);
                 ps.setString(2, requests.getLocation());
                 ps.setBoolean(3, requests.getFederationApproval());
-            ps.executeUpdate();
-            connection.commit();
-            return id;
-        }catch (SQLException e){
-            if(connection != null){
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                }
+                ps.executeUpdate();
+                connection.commit();
+                return id;
+            }catch(SQLException ex){
+                connection.rollback();
+                throw ex;
             }
+        }catch (SQLException e){
             throw new RuntimeException(e);
         }
     }

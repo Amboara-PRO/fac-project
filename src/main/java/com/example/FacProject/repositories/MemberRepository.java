@@ -1,7 +1,6 @@
 package com.example.FacProject.repositories;
 
-import com.example.FacProject.dto.CollectivityDTO;
-import com.example.FacProject.dto.CreateCollectivityDTO;
+import com.example.FacProject.config.DataSource;
 import com.example.FacProject.dto.MemberDTO;
 import com.example.FacProject.entities.*;
 import org.springframework.stereotype.Repository;
@@ -14,10 +13,10 @@ import java.util.*;
 
 @Repository
 public class MemberRepository {
-    private Connection connection;
+    private DataSource dataSource;
 
-    public MemberRepository(Connection connection) {
-        this.connection = connection;
+    public MemberRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public Optional<MemberDTO> findById(String memberId) {
@@ -36,8 +35,9 @@ SELECT id,
                                         """;
         String refereesSql = "SELECT referee_id FROM member_referees WHERE member_id = ?";
 
-        try  {
+        try (Connection connection = dataSource.getConnection()) {
             MemberDTO dto = null;
+
             try (PreparedStatement pstmt = connection.prepareStatement(memberSql)) {
                 pstmt.setString(1, memberId);
                 try (ResultSet rs = pstmt.executeQuery()) {
@@ -72,7 +72,7 @@ SELECT id,
                 dto.setReferees(refereeIds);
             }
 
-            return Optional.of(dto);
+            return Optional.ofNullable(dto);
         }catch (SQLException e){
             throw new RuntimeException(e);
         }

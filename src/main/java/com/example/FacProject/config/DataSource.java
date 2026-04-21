@@ -15,7 +15,6 @@ public class DataSource {
     private String user = System.getenv("USER");
     private String password = System.getenv("PASSWORD");
 
-    @Bean
     public Connection getConnection() {
         try {
             return DriverManager.getConnection(jdbcUrl, user, password);

@@ -45,7 +45,7 @@ public class CollectivityService {
                 for (String id : dto.getMembers()) {
                     Optional<MemberDTO> memberDTO = memberRepo.findById(id);
                     if(memberDTO.isPresent()){
-                        listMembers.add(memberRepo.findById(id).get());
+                        listMembers.add(memberDTO.get());
                     }
                     else{
                         throw new NotFoundException("Member not found");
