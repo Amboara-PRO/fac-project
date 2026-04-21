@@ -1,4 +1,4 @@
-package com.example.FacProject.entity;
+package com.example.FacProject.entities;
 
 public class MemberRefereeEntity {
     private MemberEntity member;

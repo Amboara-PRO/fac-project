@@ -1,6 +1,4 @@
-package com.example.FacProject.entity;
-
-import java.util.ArrayList;
+package com.example.FacProject.entities;
 
 public class CollectivityStructureEntity {
     private CollectivityEntity collectivity;
