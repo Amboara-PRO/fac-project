@@ -7,6 +7,11 @@ servers:
   - url: http://localhost:8080
 
 paths:
+  /ping:
+    get:
+      responses:
+        content:
+          text
   /communities:
     post:
       summary: create a new community
@@ -208,9 +213,13 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Federation'
+            examples:
+              federation:
+                $ref: './components/examples.yaml#/Federation'
         responses:
           '201':
             description: Federation created
+
 
   /federation/communities:
     get:
@@ -537,7 +546,7 @@ components:
           type: number
         period:
           type: string
-          
+
     Attendance:
       type: object
       required: [ memberId, status ]

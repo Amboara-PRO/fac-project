@@ -1,175 +1,174 @@
+Federation:
+  summary: Federation example
+  value:
+    id: 1
+    name: Federation Malagasy
+    managers:
+      - id: 1
+        firstName: Jean
+        lastName: Rakoto
+    communities:
+      - id: 1
+        name: Mpamboly vary
 Community:
-  summary: An array of 10 members
+  summary: Community example with 10 members
   value:
     id: 1
     name: Mpamboly vary
-    type: Community
     members:
-        - id: 1
-          type: Member
-          firstName: "Jean"
-          lastName: "Rakoto"
-          birthDate: "1985-05-12T00:00:00Z"
-          gender: "male"
-          address: "Lot IVG 15 Antananarivo"
-          profession: "producer"
-          phone: "+261340000001"
-          email: "jean.rakoto@example.mg"
-          joiningDate: "2024-01-10T09:00:00Z"
-          status: "president"
+      - id: 1
+        firstName: Jean
+        lastName: Rakoto
+        birthDate: "1985-05-12T00:00:00Z"
+        gender: male
+        address: "Antananarivo"
+        profession: producer
+        phone: "+261340000001"
+        email: "jean.rakoto@example.mg"
+        joiningDate: "2024-01-10T09:00:00Z"
+        status: president
 
-        - id: 2
-          type: Member
-          firstName: "Sitraka"
-          lastName: "Andria"
-          birthDate: "1990-08-22T00:00:00Z"
-          gender: "female"
-          address: "Rue de Nice, Toamasina"
-          profession: "collector"
-          phone: "+261340000002"
-          email: "sitraka@example.mg"
-          joiningDate: "2024-03-15T10:00:00Z"
-          status: "deputyPresident"
+      - id: 2
+        firstName: Sitraka
+        lastName: Andria
+        birthDate: "1990-08-22T00:00:00Z"
+        gender: female
+        address: "Toamasina"
+        profession: collector
+        phone: "+261340000002"
+        email: "sitraka@example.mg"
+        joiningDate: "2024-03-15T10:00:00Z"
+        status: deputyPresident
 
-        - id: 3
-          type: Member
-          firstName: "Faly"
-          lastName: "Raoel"
-          birthDate: "1982-11-30T00:00:00Z"
-          gender: "pale"
-          address: "Ambohimanarina"
-          profession: "collector"
-          phone: "+261340000003"
-          email: "faly.treasurer@example.mg"
-          joiningDate: "2024-06-01T08:30:00Z"
-          status: "treasurer"
+      - id: 3
+        firstName: Faly
+        lastName: Raoel
+        birthDate: "1982-11-30T00:00:00Z"
+        gender: male
+        address: "Antananarivo"
+        profession: collector
+        phone: "+261340000003"
+        email: "faly@example.mg"
+        joiningDate: "2024-06-01T08:30:00Z"
+        status: treasurer
 
-        - id: 4
-          type: Member
-          firstName: "Mamy"
-          lastName: "Rabe"
-          birthDate: "1995-02-14T00:00:00Z"
-          gender: "female"
-          address: "Ankadifotsy"
-          profession: "collector"
-          phone: "+261340000004"
-          email: "mamy.sec@example.mg"
-          joiningDate: "2025-01-20T14:00:00Z"
-          status: "secretary"
+      - id: 4
+        firstName: Mamy
+        lastName: Rabe
+        birthDate: "1995-02-14T00:00:00Z"
+        gender: female
+        address: "Antananarivo"
+        profession: collector
+        phone: "+261340000004"
+        email: "mamy@example.mg"
+        joiningDate: "2025-01-20T14:00:00Z"
+        status: secretary
 
-        - id: 5
-          type: Member
-          firstName: "Lova"
-          lastName: "Randria"
-          birthDate: "1988-07-07T00:00:00Z"
-          gender: "pale"
-          address: "Besarety"
-          profession: "collector"
-          phone: "+261340000005"
-          email: "lova@example.mg"
-          joiningDate: "2025-02-10T11:00:00Z"
-          status: "confirmed"
+      - id: 5
+        firstName: Lova
+        lastName: Randria
+        birthDate: "1988-07-07T00:00:00Z"
+        gender: male
+        address: "Antananarivo"
+        profession: collector
+        phone: "+261340000005"
+        email: "lova@example.mg"
+        joiningDate: "2025-02-10T11:00:00Z"
+        status: confirmed
 
-        - id: 6
-          type: Member
-          firstName: "Tiana"
-          lastName: "Rasolo"
-          birthDate: "1998-12-01T00:00:00Z"
-          gender: "female"
-          address: "67Ha, Antananarivo"
-          profession: "collector"
-          phone: "+261340000006"
-          email: "tiana@example.mg"
-          joiningDate: "2025-11-05T09:00:00Z"
-          status: "confirmed"
+      - id: 6
+        firstName: Tiana
+        lastName: Rasolo
+        birthDate: "1998-12-01T00:00:00Z"
+        gender: female
+        address: "Antananarivo"
+        profession: collector
+        phone: "+261340000006"
+        email: "tiana@example.mg"
+        joiningDate: "2025-11-05T09:00:00Z"
+        status: confirmed
 
-        - id: 7
-          type: Member
-          firstName: "Rivo"
-          lastName: "Andry"
-          birthDate: "2000-03-25T00:00:00Z"
-          gender: "pale"
-          address: "Anosy"
-          profession: "producer"
-          phone: "+261340000007"
-          email: "rivo@example.mg"
-          joiningDate: "2026-01-15T10:00:00Z"
-          status: "junior"
+      - id: 7
+        firstName: Rivo
+        lastName: Andry
+        birthDate: "2000-03-25T00:00:00Z"
+        gender: male
+        address: "Antananarivo"
+        profession: producer
+        phone: "+261340000007"
+        email: "rivo@example.mg"
+        joiningDate: "2026-01-15T10:00:00Z"
+        status: junior
 
-        - id: 8
-          type: Member
-          firstName: "Nirina"
-          lastName: "Rala"
-          birthDate: "1992-04-18T00:00:00Z"
-          gender: "female"
-          address: "Iavoloha"
-          profession: "collector"
-          phone: "+261340000008"
-          email: "nirina@example.mg"
-          joiningDate: "2026-02-01T08:00:00Z"
-          status: "junior"
+      - id: 8
+        firstName: Nirina
+        lastName: Rala
+        birthDate: "1992-04-18T00:00:00Z"
+        gender: female
+        address: "Antananarivo"
+        profession: collector
+        phone: "+261340000008"
+        email: "nirina@example.mg"
+        joiningDate: "2026-02-01T08:00:00Z"
+        status: junior
 
-        - id: 9
-          type: Member
-          firstName: "Hery"
-          lastName: "Rajao"
-          birthDate: "1980-09-12T00:00:00Z"
-          gender: "pale"
-          address: "Manakambahiny"
-          profession: "producer"
-          phone: "+261340000009"
-          email: "hery@example.mg"
-          joiningDate: "2026-03-10T15:30:00Z"
-          status: "confirmed"
+      - id: 9
+        firstName: Hery
+        lastName: Rajao
+        birthDate: "1980-09-12T00:00:00Z"
+        gender: male
+        address: "Antananarivo"
+        profession: producer
+        phone: "+261340000009"
+        email: "hery@example.mg"
+        joiningDate: "2026-03-10T15:30:00Z"
+        status: confirmed
 
-        - id: 10
-          type: Member
-          firstName: "Soa"
-          lastName: "Meva"
-          birthDate: "2002-06-30T00:00:00Z"
-          gender: "female"
-          address: "Tanjombato"
-          profession: "producer"
-          phone: "+261340000010"
-          email: "soa@example.mg"
-          joiningDate: "2026-04-01T12:00:00Z"
-          status: "junior"
+      - id: 10
+        firstName: Soa
+        lastName: Meva
+        birthDate: "2002-06-30T00:00:00Z"
+        gender: female
+        address: "Tanjombato"
+        profession: producer
+        phone: "+261340000010"
+        email: "soa@example.mg"
+        joiningDate: "2026-04-01T12:00:00Z"
+        status: junior
+
     region: antananarivo
     speciality: riceGrowing
-    creationDateTime: 2026-04-15T17:32:28Z
+    creationDateTime: "2026-04-15T17:32:28Z"
 
 Member:
-  summary: An array of 10 members
+  summary: A single member
   value:
     id: 11
-    type: Member
-    firstName: "Anja"
-    lastName: "Tiana"
+    firstName: Anja
+    lastName: Tiana
     birthDate: "2002-06-30T00:00:00Z"
-    gender: "female"
+    gender: female
     address: "Tanjombato"
-    profession: "Apprentie"
+    profession: producer
     phone: "+261340550015"
     email: "anja@example.mg"
     joiningDate: "2026-04-15T09:00:00Z"
-    status: "confirmed"
-
+    status: confirmed
 
 Members:
-  summary: An array of 10 members
+  summary: List of 10 members
   value:
     - id: 1
-      type: Member
-      firstName: "Jean"
-      lastName: "Rakoto"
+      firstName: Jean
+      lastName: Rakoto
       birthDate: "1985-05-12T00:00:00Z"
-      gender: "male"
-      address: "Lot IVG 15 Antananarivo"
-      profession: "producer"
+      gender: male
+      address: "Antananarivo"
+      profession: producer
       phone: "+261340000001"
       email: "jean.rakoto@example.mg"
       joiningDate: "2024-01-10T09:00:00Z"
-      status: "president"
+      status: president
 
     - id: 2
       type: Member
@@ -189,7 +188,7 @@ Members:
       firstName: "Faly"
       lastName: "Raoel"
       birthDate: "1982-11-30T00:00:00Z"
-      gender: "pale"
+      gender: "male"
       address: "Ambohimanarina"
       profession: "collector"
       phone: "+261340000003"
@@ -215,7 +214,7 @@ Members:
       firstName: "Lova"
       lastName: "Randria"
       birthDate: "1988-07-07T00:00:00Z"
-      gender: "pale"
+      gender: "male"
       address: "Besarety"
       profession: "collector"
       phone: "+261340000005"
@@ -241,7 +240,7 @@ Members:
       firstName: "Rivo"
       lastName: "Andry"
       birthDate: "2000-03-25T00:00:00Z"
-      gender: "pale"
+      gender: "male"
       address: "Anosy"
       profession: "producer"
       phone: "+261340000007"
@@ -267,7 +266,7 @@ Members:
       firstName: "Hery"
       lastName: "Rajao"
       birthDate: "1980-09-12T00:00:00Z"
-      gender: "pale"
+      gender: "male"
       address: "Manakambahiny"
       profession: "producer"
       phone: "+261340000009"
@@ -298,7 +297,7 @@ Person:
     birthDate: "2002-06-30T00:00:00Z"
     gender: "female"
     address: "Tanjombato"
-    profession: "Apprentie"
+    profession: producter
     phone: "+261340550015"
     email: "anja@example.mg"
 
@@ -538,7 +537,7 @@ ActivityCommunity:
             firstName: "Lova"
             lastName: "Randria"
             birthDate: "1988-07-07T00:00:00Z"
-            gender: "pale"
+            gender: "male"
             address: "Besarety"
             profession: "collector"
             phone: "+261340000005"
@@ -564,7 +563,7 @@ ActivityCommunity:
             firstName: "Rivo"
             lastName: "Andry"
             birthDate: "2000-03-25T00:00:00Z"
-            gender: "pale"
+            gender: "male"
             address: "Anosy"
             profession: "producer"
             phone: "+261340000007"
@@ -590,7 +589,7 @@ ActivityCommunity:
             firstName: "Hery"
             lastName: "Rajao"
             birthDate: "1980-09-12T00:00:00Z"
-            gender: "pale"
+            gender: "male"
             address: "Manakambahiny"
             profession: "producer"
             phone: "+261340000009"
