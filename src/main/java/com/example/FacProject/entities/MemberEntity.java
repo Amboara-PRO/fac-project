@@ -9,17 +9,28 @@ public class MemberEntity extends PersonEntity {
     private Boolean registrationFeePaid;
     private Boolean membershipDuesPaid;
     private CollectivityEntity collectivity;
+    private LocalDate federationJoinDate;
 
-    public MemberEntity(String id, String firstName, String lastName, LocalDate birthDate, GenderEnum gender, String address, String profession, Long phoneNumber, String email, MemberOccupationEnum occupation, ArrayList<MemberRefereeEntity> referees, Boolean registrationFeePaid, Boolean membershipDuesPaid, CollectivityEntity collectivity) {
+    public MemberEntity(String id, String firstName, String lastName, LocalDate birthDate, GenderEnum gender, String address, String profession, Long phoneNumber, String email, MemberOccupationEnum occupation, ArrayList<MemberRefereeEntity> referees, Boolean registrationFeePaid, Boolean membershipDuesPaid, CollectivityEntity collectivity, LocalDate federationJoinDate) {
         super(id, firstName, lastName, birthDate, gender, address, profession, phoneNumber, email);
         this.occupation = occupation;
         this.referees = referees;
         this.registrationFeePaid = registrationFeePaid;
         this.membershipDuesPaid = membershipDuesPaid;
         this.collectivity = collectivity;
+        this.federationJoinDate = federationJoinDate;
     }
 
+
     public MemberEntity() {
+    }
+
+    public LocalDate getFederationJoinDate() {
+        return federationJoinDate;
+    }
+
+    public void setFederationJoinDate(LocalDate federationJoinDate) {
+        this.federationJoinDate = federationJoinDate;
     }
 
     public MemberOccupationEnum getOccupation() {

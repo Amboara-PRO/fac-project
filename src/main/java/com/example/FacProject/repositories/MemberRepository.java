@@ -77,5 +77,37 @@ SELECT id,
             throw new RuntimeException(e);
         }
     }
+    public int countSeniorMembers(List<String> ids) {
+
+        String sql = """
+        SELECT COUNT(id)
+        FROM members
+        WHERE id = ANY(?)
+        AND federation_join_date <= CURRENT_DATE - INTERVAL '6 months'
+    """;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            // Conversion List -> SQL Array (PostgreSQL)
+            java.sql.Array sqlArray = connection.createArrayOf(
+                    "varchar",
+                    ids.toArray()
+            );
+
+            ps.setArray(1, sqlArray);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return 0;
+    }
 
 }

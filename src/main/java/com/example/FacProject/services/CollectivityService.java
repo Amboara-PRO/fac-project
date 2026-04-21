@@ -9,6 +9,7 @@ import com.example.FacProject.exceptions.NotFoundException;
 import com.example.FacProject.repositories.CollectivityRepository;
 import com.example.FacProject.repositories.CollectivityStructureRepository;
 import com.example.FacProject.repositories.MemberRepository;
+import com.example.FacProject.validators.MemberValidator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
@@ -20,18 +21,21 @@ import java.util.Optional;
 @Service
 public class CollectivityService {
 
-    private final CollectivityRepository collectivityRepo;
-    private final MemberRepository memberRepo;
-    private final CollectivityStructureRepository structureRepo;
+    private  CollectivityRepository collectivityRepo;
+    private  MemberRepository memberRepo;
+    private  CollectivityStructureRepository structureRepo;
+    private  MemberValidator memberValidator;
 
     public CollectivityService(
             CollectivityRepository collectivityRepo,
             MemberRepository memberRepo,
-            CollectivityStructureRepository structureRepo
+            CollectivityStructureRepository structureRepo,
+            MemberValidator memberValidator
     ) {
         this.collectivityRepo = collectivityRepo;
         this.memberRepo = memberRepo;
         this.structureRepo = structureRepo;
+        this.memberValidator = memberValidator;
     }
 
     public List<CollectivityDTO> create(List<CreateCollectivityDTO> dtos) {
@@ -41,6 +45,8 @@ public class CollectivityService {
                 if(!dto.getFederationApproval()|| dto.getStructure() == null){
                     throw new BadRequestException("Collectivity without federation approval or structure missing");
                 }
+                memberValidator.validateMemberCount(dto.getMembers().size());
+                memberValidator.validateSeniorNumber(memberRepo.countSeniorMembers(dto.getMembers()));
                 List<MemberDTO>  listMembers = new ArrayList<>();
                 for (String id : dto.getMembers()) {
                     Optional<MemberDTO> memberDTO = memberRepo.findById(id);
