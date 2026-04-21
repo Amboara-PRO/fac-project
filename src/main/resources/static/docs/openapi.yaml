@@ -38,7 +38,7 @@ paths:
                 $ref: '#/components/schemas/Person'
             examples:
               newCommunityMembers:
-                $ref: './components/examples.yaml#/Members'
+                $ref: '#/components/examples/Members'
 
       responses:
         '201':
@@ -49,7 +49,7 @@ paths:
                 $ref: '#/components/schemas/Community'
               examples:
                 newCommunity:
-                  $ref: './components/examples.yaml#/Community'
+                  $ref: '#/components/examples/Community'
 
         '404':
           description: Region not found
@@ -66,71 +66,44 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                type: string
                 properties:
                   error:
                     type: string
                     example: Request body is required
 
-  /communities/members:
+  /communities/{communityId}/members:
     post:
-      summary: Add a new member in a community
-      description: Return the new member in the community
+      summary: Apply for community membership (NEW RULES)
+      description: |
+        New admission rules:
+        - At least 2 confirmed sponsors
+        - Sponsors from target community >= sponsors from other communities
+        - Membership fee + full annual contribution required
       parameters:
-        - name: confirmedMemberId
-          in: query
+        - name: communityId
+          in: path
           required: true
-          description: The id of the confirmed member with more than 90 days of seniority
           schema:
             type: integer
-          example: 1
-        - name: membershipFees
-          in: query
-          required: true
-          description: Community's membership fees
-          schema:
-            type: number
-          example: 50000
       requestBody:
-        description: The new member to join
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Person'
-            examples:
-              newMember:
-                $ref: './components/examples.yaml#/Person'
+              $ref: '#/components/schemas/AdmissionRequest'
       responses:
         '201':
-          description: New member added
+          description: Member admitted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Member'
-              examples:
-                newCommunity:
-                  $ref: './components/examples.yaml#/Member'
-        '404':
-          description: The id of the confirmed member not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: The id of the confirmed member doesn't exist
         '400':
-          description: New person's information is not provided
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Request body is required
+          description: Invalid admission conditions
+        '403':
+          description: Admission refused (rules not satisfied)
+
     delete:
       summary: Delete member from a community
       description: Return the deleted member from the community
@@ -151,7 +124,7 @@ paths:
                 $ref: '#/components/schemas/Person'
               examples:
                 deletedMember:
-                  $ref: './components/examples.yaml#/Person'
+                  $ref: '#/components/examples/Person'
         '404':
           description: The id of the member not found
           content:
@@ -176,7 +149,7 @@ paths:
               $ref: '#/components/schemas/Contribution'
             examples:
               newContribution:
-                $ref: './components/examples.yaml#/Contribution'
+                $ref: '#/components/examples/Contribution'
       responses:
         '201':
           description: Contribution added in the community's box
@@ -186,7 +159,7 @@ paths:
                 $ref: '#/components/schemas/ContributionHistory'
               examples:
                 newContribution:
-                  $ref: './components/examples.yaml#/ContributionHistory'
+                  $ref: '#/components/examples/ContributionHistory'
 
         '400':
           description: The contribution is not provided
@@ -210,10 +183,10 @@ paths:
               $ref: '#/components/schemas/Federation'
             examples:
               federation:
-                $ref: './components/examples.yaml#/Federation'
-        responses:
-          '201':
-            description: Federation created
+                $ref: '#/components/examples/Federation'
+      responses:
+        '201':
+          description: Federation created
 
 
   /federation/communities:
@@ -293,7 +266,7 @@ paths:
               $ref: '#/components/schemas/ActivityCommunity'
             examples:
               activity:
-                $ref: './components/examples.yaml#/ActivityCommunity'
+                $ref: '#/components/examples/ActivityCommunity'
       responses:
         '201':
           description: Activity created
@@ -412,20 +385,25 @@ paths:
 
   /federation/statistics:
     get:
-      summary: Federation statistics
+      summary: Federation global statistics (UPDATED)
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
       responses:
         '200':
+          description: Federation statistics
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  totalCommunities:
-                    type: integer
-                  totalMembers:
-                    type: integer
-                  globalAttendanceRate:
-                    type: number
+                $ref: '#/components/schemas/FederationStatistics'
 
   /communities/{communityId}/activities/{activityId}/attendance:
     post:
@@ -522,6 +500,66 @@ paths:
 
 components:
   schemas:
+    FederationStatistics:
+      type: object
+      properties:
+        period:
+          type: string
+          example: "monthly"
+        communities:
+          type: array
+          items:
+            $ref: '#/components/schemas/FederationCommunityStats'
+
+    FederationCommunityStats:
+      type: object
+      properties:
+        communityId:
+          type: integer
+        communityName:
+          type: string
+        attendanceRate:
+          type: number
+          description: Global attendance rate (%)
+        upToDateMembersPercentage:
+          type: number
+          description: % of members who paid contributions
+        newMembersCount:
+          type: integer
+
+    Sponsor:
+      type: objet
+      required: [memberId, relationship]
+      properties:
+        memberId:
+          type: integer
+          description: Member ID
+          relationship:
+            type: string
+            description: ralation with candidat
+
+    AdmissionRequest:
+      type: objet
+      required:
+        - person
+        - sponsors
+        - membershipFees
+        - annualContribution
+      properties:
+        person:
+          $ref: '#/components/schemas/Person'
+        sponsors:
+          type: array
+          minItems: 2
+          items:
+            $ref: '#/components/schemas/Sponsor'
+        memberFees:
+          type: number
+          example: 50000
+        annualContribution:
+          type: number
+          examples: 200000
+
     MemberStatistics:
       type: object
       properties:
@@ -829,4 +867,620 @@ components:
       schema:
         type: string
         example: Your community is allowed by the federation to be opened
+
+  examples:
+    Federation:
+      summary: Federation example
+      value:
+        id: 1
+        name: Federation Malagasy
+        managers:
+          - id: 1
+            firstName: Jean
+            lastName: Rakoto
+        communities:
+          - id: 1
+            name: Mpamboly vary
+    Community:
+      summary: Community example with 10 members
+      value:
+        id: 1
+        name: Mpamboly vary
+        members:
+          - id: 1
+            firstName: Jean
+            lastName: Rakoto
+            birthDate: "1985-05-12T00:00:00Z"
+            gender: male
+            address: "Antananarivo"
+            profession: producer
+            phone: "+261340000001"
+            email: "jean.rakoto@example.mg"
+            joiningDate: "2024-01-10T09:00:00Z"
+            status: president
+
+          - id: 2
+            firstName: Sitraka
+            lastName: Andria
+            birthDate: "1990-08-22T00:00:00Z"
+            gender: female
+            address: "Toamasina"
+            profession: collector
+            phone: "+261340000002"
+            email: "sitraka@example.mg"
+            joiningDate: "2024-03-15T10:00:00Z"
+            status: deputyPresident
+
+          - id: 3
+            firstName: Faly
+            lastName: Raoel
+            birthDate: "1982-11-30T00:00:00Z"
+            gender: male
+            address: "Antananarivo"
+            profession: collector
+            phone: "+261340000003"
+            email: "faly@example.mg"
+            joiningDate: "2024-06-01T08:30:00Z"
+            status: treasurer
+
+          - id: 4
+            firstName: Mamy
+            lastName: Rabe
+            birthDate: "1995-02-14T00:00:00Z"
+            gender: female
+            address: "Antananarivo"
+            profession: collector
+            phone: "+261340000004"
+            email: "mamy@example.mg"
+            joiningDate: "2025-01-20T14:00:00Z"
+            status: secretary
+
+          - id: 5
+            firstName: Lova
+            lastName: Randria
+            birthDate: "1988-07-07T00:00:00Z"
+            gender: male
+            address: "Antananarivo"
+            profession: collector
+            phone: "+261340000005"
+            email: "lova@example.mg"
+            joiningDate: "2025-02-10T11:00:00Z"
+            status: confirmed
+
+          - id: 6
+            firstName: Tiana
+            lastName: Rasolo
+            birthDate: "1998-12-01T00:00:00Z"
+            gender: female
+            address: "Antananarivo"
+            profession: collector
+            phone: "+261340000006"
+            email: "tiana@example.mg"
+            joiningDate: "2025-11-05T09:00:00Z"
+            status: confirmed
+
+          - id: 7
+            firstName: Rivo
+            lastName: Andry
+            birthDate: "2000-03-25T00:00:00Z"
+            gender: male
+            address: "Antananarivo"
+            profession: producer
+            phone: "+261340000007"
+            email: "rivo@example.mg"
+            joiningDate: "2026-01-15T10:00:00Z"
+            status: junior
+
+          - id: 8
+            firstName: Nirina
+            lastName: Rala
+            birthDate: "1992-04-18T00:00:00Z"
+            gender: female
+            address: "Antananarivo"
+            profession: collector
+            phone: "+261340000008"
+            email: "nirina@example.mg"
+            joiningDate: "2026-02-01T08:00:00Z"
+            status: junior
+
+          - id: 9
+            firstName: Hery
+            lastName: Rajao
+            birthDate: "1980-09-12T00:00:00Z"
+            gender: male
+            address: "Antananarivo"
+            profession: producer
+            phone: "+261340000009"
+            email: "hery@example.mg"
+            joiningDate: "2026-03-10T15:30:00Z"
+            status: confirmed
+
+          - id: 10
+            firstName: Soa
+            lastName: Meva
+            birthDate: "2002-06-30T00:00:00Z"
+            gender: female
+            address: "Tanjombato"
+            profession: producer
+            phone: "+261340000010"
+            email: "soa@example.mg"
+            joiningDate: "2026-04-01T12:00:00Z"
+            status: junior
+
+        region: antananarivo
+        speciality: riceGrowing
+        creationDateTime: "2026-04-15T17:32:28Z"
+
+    Member:
+      summary: A single member
+      value:
+        id: 11
+        firstName: Anja
+        lastName: Tiana
+        birthDate: "2002-06-30T00:00:00Z"
+        gender: female
+        address: "Tanjombato"
+        profession: producer
+        phone: "+261340550015"
+        email: "anja@example.mg"
+        joiningDate: "2026-04-15T09:00:00Z"
+        status: confirmed
+
+    Members:
+      summary: List of 10 members
+      value:
+        - id: 1
+          firstName: Jean
+          lastName: Rakoto
+          birthDate: "1985-05-12T00:00:00Z"
+          gender: male
+          address: "Antananarivo"
+          profession: producer
+          phone: "+261340000001"
+          email: "jean.rakoto@example.mg"
+          joiningDate: "2024-01-10T09:00:00Z"
+          status: president
+
+        - id: 2
+          type: Member
+          firstName: "Sitraka"
+          lastName: "Andria"
+          birthDate: "1990-08-22T00:00:00Z"
+          gender: "female"
+          address: "Rue de Nice, Toamasina"
+          profession: "collector"
+          phone: "+261340000002"
+          email: "sitraka@example.mg"
+          joiningDate: "2024-03-15T10:00:00Z"
+          status: "deputyPresident"
+
+        - id: 3
+          type: Member
+          firstName: "Faly"
+          lastName: "Raoel"
+          birthDate: "1982-11-30T00:00:00Z"
+          gender: "male"
+          address: "Ambohimanarina"
+          profession: "collector"
+          phone: "+261340000003"
+          email: "faly.treasurer@example.mg"
+          joiningDate: "2024-06-01T08:30:00Z"
+          status: "treasurer"
+
+        - id: 4
+          type: Member
+          firstName: "Mamy"
+          lastName: "Rabe"
+          birthDate: "1995-02-14T00:00:00Z"
+          gender: "female"
+          address: "Ankadifotsy"
+          profession: "collector"
+          phone: "+261340000004"
+          email: "mamy.sec@example.mg"
+          joiningDate: "2025-01-20T14:00:00Z"
+          status: "secretary"
+
+        - id: 5
+          type: Member
+          firstName: "Lova"
+          lastName: "Randria"
+          birthDate: "1988-07-07T00:00:00Z"
+          gender: "male"
+          address: "Besarety"
+          profession: "collector"
+          phone: "+261340000005"
+          email: "lova@example.mg"
+          joiningDate: "2025-02-10T11:00:00Z"
+          status: "confirmed"
+
+        - id: 6
+          type: Member
+          firstName: "Tiana"
+          lastName: "Rasolo"
+          birthDate: "1998-12-01T00:00:00Z"
+          gender: "female"
+          address: "67Ha, Antananarivo"
+          profession: "collector"
+          phone: "+261340000006"
+          email: "tiana@example.mg"
+          joiningDate: "2025-11-05T09:00:00Z"
+          status: "confirmed"
+
+        - id: 7
+          type: Member
+          firstName: "Rivo"
+          lastName: "Andry"
+          birthDate: "2000-03-25T00:00:00Z"
+          gender: "male"
+          address: "Anosy"
+          profession: "producer"
+          phone: "+261340000007"
+          email: "rivo@example.mg"
+          joiningDate: "2026-01-15T10:00:00Z"
+          status: "junior"
+
+        - id: 8
+          type: Member
+          firstName: "Nirina"
+          lastName: "Rala"
+          birthDate: "1992-04-18T00:00:00Z"
+          gender: "female"
+          address: "Iavoloha"
+          profession: "collector"
+          phone: "+261340000008"
+          email: "nirina@example.mg"
+          joiningDate: "2026-02-01T08:00:00Z"
+          status: "junior"
+
+        - id: 9
+          type: Member
+          firstName: "Hery"
+          lastName: "Rajao"
+          birthDate: "1980-09-12T00:00:00Z"
+          gender: "male"
+          address: "Manakambahiny"
+          profession: "producer"
+          phone: "+261340000009"
+          email: "hery@example.mg"
+          joiningDate: "2026-03-10T15:30:00Z"
+          status: "confirmed"
+
+        - id: 10
+          type: Member
+          firstName: "Soa"
+          lastName: "Meva"
+          birthDate: "2002-06-30T00:00:00Z"
+          gender: "female"
+          address: "Tanjombato"
+          profession: "producer"
+          phone: "+261340000010"
+          email: "soa@example.mg"
+          joiningDate: "2026-04-01T12:00:00Z"
+          status: "junior"
+
+    Person:
+      summary: A person without any community
+      value:
+        id: 11
+        type: Person
+        firstName: "Anja"
+        lastName: "Tiana"
+        birthDate: "2002-06-30T00:00:00Z"
+        gender: "female"
+        address: "Tanjombato"
+        profession: producter
+        phone: "+261340550015"
+        email: "anja@example.mg"
+
+    ContributionHistory:
+      summary: An history's contribution of a community member on cash
+      value:
+        amount: 10000
+        receiptDate: "2026-04-18T00:00:00Z"
+        paymentMethod: "cash"
+
+    Contribution:
+      summary: A contribution of a community member on cash
+      value:
+        id: 1
+        periodicity: "monthly"
+        activity:
+          id: 1
+          title: rice growing conference
+          leader:
+            id: 1
+            name: Mpamboly vary
+            type: Community
+            members:
+              value:
+                - id: 1
+                  type: Member
+                  firstName: "Jean"
+                  lastName: "Rakoto"
+                  birthDate: "1985-05-12T00:00:00Z"
+                  gender: "male"
+                  address: "Lot IVG 15 Antananarivo"
+                  profession: "producer"
+                  phone: "+261340000001"
+                  email: "jean.rakoto@example.mg"
+                  joiningDate: "2024-01-10T09:00:00Z"
+                  status: "president"
+
+                - id: 2
+                  type: Member
+                  firstName: "Sitraka"
+                  lastName: "Andria"
+                  birthDate: "1990-08-22T00:00:00Z"
+                  gender: "female"
+                  address: "Rue de Nice, Toamasina"
+                  profession: "collector"
+                  phone: "+261340000002"
+                  email: "sitraka@example.mg"
+                  joiningDate: "2024-03-15T10:00:00Z"
+                  status: "deputyPresident"
+
+                - id: 3
+                  type: Member
+                  firstName: "Faly"
+                  lastName: "Raoel"
+                  birthDate: "1982-11-30T00:00:00Z"
+                  gender: "pale"
+                  address: "Ambohimanarina"
+                  profession: "collector"
+                  phone: "+261340000003"
+                  email: "faly.treasurer@example.mg"
+                  joiningDate: "2024-06-01T08:30:00Z"
+                  status: "treasurer"
+
+                - id: 4
+                  type: Member
+                  firstName: "Mamy"
+                  lastName: "Rabe"
+                  birthDate: "1995-02-14T00:00:00Z"
+                  gender: "female"
+                  address: "Ankadifotsy"
+                  profession: "collector"
+                  phone: "+261340000004"
+                  email: "mamy.sec@example.mg"
+                  joiningDate: "2025-01-20T14:00:00Z"
+                  status: "secretary"
+
+                - id: 5
+                  type: Member
+                  firstName: "Lova"
+                  lastName: "Randria"
+                  birthDate: "1988-07-07T00:00:00Z"
+                  gender: "pale"
+                  address: "Besarety"
+                  profession: "collector"
+                  phone: "+261340000005"
+                  email: "lova@example.mg"
+                  joiningDate: "2025-02-10T11:00:00Z"
+                  status: "confirmed"
+
+                - id: 6
+                  type: Member
+                  firstName: "Tiana"
+                  lastName: "Rasolo"
+                  birthDate: "1998-12-01T00:00:00Z"
+                  gender: "female"
+                  address: "67Ha, Antananarivo"
+                  profession: "collector"
+                  phone: "+261340000006"
+                  email: "tiana@example.mg"
+                  joiningDate: "2025-11-05T09:00:00Z"
+                  status: "confirmed"
+
+                - id: 7
+                  type: Member
+                  firstName: "Rivo"
+                  lastName: "Andry"
+                  birthDate: "2000-03-25T00:00:00Z"
+                  gender: "pale"
+                  address: "Anosy"
+                  profession: "producer"
+                  phone: "+261340000007"
+                  email: "rivo@example.mg"
+                  joiningDate: "2026-01-15T10:00:00Z"
+                  status: "junior"
+
+                - id: 8
+                  type: Member
+                  firstName: "Nirina"
+                  lastName: "Rala"
+                  birthDate: "1992-04-18T00:00:00Z"
+                  gender: "female"
+                  address: "Iavoloha"
+                  profession: "collector"
+                  phone: "+261340000008"
+                  email: "nirina@example.mg"
+                  joiningDate: "2026-02-01T08:00:00Z"
+                  status: "junior"
+
+                - id: 9
+                  type: Member
+                  firstName: "Hery"
+                  lastName: "Rajao"
+                  birthDate: "1980-09-12T00:00:00Z"
+                  gender: "pale"
+                  address: "Manakambahiny"
+                  profession: "producer"
+                  phone: "+261340000009"
+                  email: "hery@example.mg"
+                  joiningDate: "2026-03-10T15:30:00Z"
+                  status: "confirmed"
+
+                - id: 10
+                  type: Member
+                  firstName: "Soa"
+                  lastName: "Meva"
+                  birthDate: "2002-06-30T00:00:00Z"
+                  gender: "female"
+                  address: "Tanjombato"
+                  profession: "producer"
+                  phone: "+261340000010"
+                  email: "soa@example.mg"
+                  joiningDate: "2026-04-01T12:00:00Z"
+                  status: "junior"
+            region: antananarivo
+            speciality: riceGrowing
+            creationDateTime: 2026-04-15T17:32:28Z
+        owner:
+          id: 10
+          type: Member
+          firstName: "Soa"
+          lastName: "Meva"
+          birthDate: "2002-06-30T00:00:00Z"
+          gender: "female"
+          address: "Tanjombato"
+          profession: "producer"
+          phone: "+261340000010"
+          email: "soa@example.mg"
+          joiningDate: "2026-04-01T12:00:00Z"
+          status: "junior"
+        amount: 10000
+
+    ActivityCommunity:
+      summary: An activity from a community
+      value:
+        id: 1
+        title: rice growing conference
+        leader:
+          id: 1
+          name: Mpamboly vary
+          type: Community
+          members:
+            value:
+              - id: 1
+                type: Member
+                firstName: "Jean"
+                lastName: "Rakoto"
+                birthDate: "1985-05-12T00:00:00Z"
+                gender: "male"
+                address: "Lot IVG 15 Antananarivo"
+                profession: "producer"
+                phone: "+261340000001"
+                email: "jean.rakoto@example.mg"
+                joiningDate: "2024-01-10T09:00:00Z"
+                status: "president"
+
+              - id: 2
+                type: Member
+                firstName: "Sitraka"
+                lastName: "Andria"
+                birthDate: "1990-08-22T00:00:00Z"
+                gender: "female"
+                address: "Rue de Nice, Toamasina"
+                profession: "collector"
+                phone: "+261340000002"
+                email: "sitraka@example.mg"
+                joiningDate: "2024-03-15T10:00:00Z"
+                status: "deputyPresident"
+
+              - id: 3
+                type: Member
+                firstName: "Faly"
+                lastName: "Raoel"
+                birthDate: "1982-11-30T00:00:00Z"
+                gender: "pale"
+                address: "Ambohimanarina"
+                profession: "collector"
+                phone: "+261340000003"
+                email: "faly.treasurer@example.mg"
+                joiningDate: "2024-06-01T08:30:00Z"
+                status: "treasurer"
+
+              - id: 4
+                type: Member
+                firstName: "Mamy"
+                lastName: "Rabe"
+                birthDate: "1995-02-14T00:00:00Z"
+                gender: "female"
+                address: "Ankadifotsy"
+                profession: "collector"
+                phone: "+261340000004"
+                email: "mamy.sec@example.mg"
+                joiningDate: "2025-01-20T14:00:00Z"
+                status: "secretary"
+
+              - id: 5
+                type: Member
+                firstName: "Lova"
+                lastName: "Randria"
+                birthDate: "1988-07-07T00:00:00Z"
+                gender: "male"
+                address: "Besarety"
+                profession: "collector"
+                phone: "+261340000005"
+                email: "lova@example.mg"
+                joiningDate: "2025-02-10T11:00:00Z"
+                status: "confirmed"
+
+              - id: 6
+                type: Member
+                firstName: "Tiana"
+                lastName: "Rasolo"
+                birthDate: "1998-12-01T00:00:00Z"
+                gender: "female"
+                address: "67Ha, Antananarivo"
+                profession: "collector"
+                phone: "+261340000006"
+                email: "tiana@example.mg"
+                joiningDate: "2025-11-05T09:00:00Z"
+                status: "confirmed"
+
+              - id: 7
+                type: Member
+                firstName: "Rivo"
+                lastName: "Andry"
+                birthDate: "2000-03-25T00:00:00Z"
+                gender: "male"
+                address: "Anosy"
+                profession: "producer"
+                phone: "+261340000007"
+                email: "rivo@example.mg"
+                joiningDate: "2026-01-15T10:00:00Z"
+                status: "junior"
+
+              - id: 8
+                type: Member
+                firstName: "Nirina"
+                lastName: "Rala"
+                birthDate: "1992-04-18T00:00:00Z"
+                gender: "female"
+                address: "Iavoloha"
+                profession: "collector"
+                phone: "+261340000008"
+                email: "nirina@example.mg"
+                joiningDate: "2026-02-01T08:00:00Z"
+                status: "junior"
+
+              - id: 9
+                type: Member
+                firstName: "Hery"
+                lastName: "Rajao"
+                birthDate: "1980-09-12T00:00:00Z"
+                gender: "male"
+                address: "Manakambahiny"
+                profession: "producer"
+                phone: "+261340000009"
+                email: "hery@example.mg"
+                joiningDate: "2026-03-10T15:30:00Z"
+                status: "confirmed"
+
+              - id: 10
+                type: Member
+                firstName: "Soa"
+                lastName: "Meva"
+                birthDate: "2002-06-30T00:00:00Z"
+                gender: "female"
+                address: "Tanjombato"
+                profession: "producer"
+                phone: "+261340000010"
+                email: "soa@example.mg"
+                joiningDate: "2026-04-01T12:00:00Z"
+                status: "junior"
+          region: antananarivo
+          speciality: riceGrowing
+          creationDateTime: 2026-04-15T17:32:28Z
 
