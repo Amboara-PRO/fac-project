@@ -37,7 +37,7 @@ CREATE TABLE members (
                          membership_dues_paid BOOLEAN DEFAULT FALSE,
                          federation_join_date DATE,
 
-                         collectivity_id VARCHAR(9) NOT NULL,
+                         collectivity_id VARCHAR(9),
 
                          CONSTRAINT fk_collectivity
                              FOREIGN KEY (collectivity_id)

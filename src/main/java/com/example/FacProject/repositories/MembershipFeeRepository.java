@@ -25,7 +25,6 @@ public class MembershipFeeRepository {
         String sql = """
         INSERT INTO membership_fees(id, collectivity_id, eligible_from, frequency, amount, label)
         VALUES (?, ?, ?, ?::frequency, ?, ?)
-        RETURNING *
     """;
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
@@ -90,7 +89,7 @@ public class MembershipFeeRepository {
             stmt.setString(1, id);
             ResultSet rs = stmt.executeQuery();
             List<MembershipFeeDTO> membershipFeeDTOList = new ArrayList<>();
-            if(rs.next()){
+            while(rs.next()){
                 MembershipFeeDTO membershipFeeDTO = new MembershipFeeDTO();
                 membershipFeeDTO.setId(rs.getString("id"));
                 membershipFeeDTO.setEligibleFrom(rs.getDate("eligible_from").toLocalDate());
