@@ -5,10 +5,12 @@ import com.example.FacProject.entities.MemberEntity;
 import com.example.FacProject.entities.MemberRefereeEntity;
 import com.example.FacProject.repositories.MemberRepository;
 import com.example.FacProject.validators.MemberValidator;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class MemberService {
     private final MemberRepository repo;
     private final MemberValidator validator;
