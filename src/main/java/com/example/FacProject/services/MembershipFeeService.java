@@ -6,6 +6,7 @@ import com.example.FacProject.exceptions.NotFoundException;
 import com.example.FacProject.repositories.CollectivityRepository;
 import com.example.FacProject.repositories.MemberRepository;
 import com.example.FacProject.repositories.MembershipFeeRepository;
+import com.example.FacProject.validators.CollectivityValidator;
 import com.example.FacProject.validators.MembershipFeeValidator;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +18,16 @@ public class MembershipFeeService {
     private MembershipFeeRepository repo;
     private CollectivityRepository collectivityRepository;
     private MembershipFeeValidator  validator;
+    private CollectivityValidator collectivityValidator;
 
-    public MembershipFeeService(MembershipFeeRepository repo, MembershipFeeValidator validator,  CollectivityRepository collectivityRepository) {
+    public MembershipFeeService(MembershipFeeRepository repo,
+                                MembershipFeeValidator validator,
+                                CollectivityRepository collectivityRepository,
+                                CollectivityValidator collectivityValidator) {
         this.repo = repo;
         this.validator = validator;
         this.collectivityRepository = collectivityRepository;
+        this.collectivityValidator = collectivityValidator;
     }
     public List<MembershipFeeDTO> create(String id,List<CreateMembershipFeeDTO> dtos){
         if (!collectivityRepository.isExist(id)) {
@@ -33,5 +39,9 @@ public class MembershipFeeService {
             list.add(repo.save(id,dto));
         }
         return list;
+    }
+    public List<MembershipFeeDTO> getMembershipFees(String id){
+        collectivityValidator.validateExists(id);
+        return repo.getAll(id);
     }
 }

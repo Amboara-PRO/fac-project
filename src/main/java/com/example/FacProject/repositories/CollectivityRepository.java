@@ -54,7 +54,7 @@ public class CollectivityRepository {
         String sql = """
                 UPDATE collectivities
                 SET name = ?, number = ?
-                WHERE id like ?;
+                WHERE id = ?;
                 """;
         try (Connection connection = dataSource.getConnection()) {
             try(PreparedStatement stmt = connection.prepareStatement(sql)){

@@ -8,9 +8,8 @@ import com.example.FacProject.entities.FrequencyEnum;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
+import java.sql.Date;
+import java.util.*;
 
 @Repository
 public class MembershipFeeRepository {
@@ -80,5 +79,31 @@ public class MembershipFeeRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+    public List<MembershipFeeDTO> getAll(String id) {
+        String sql = """
+                SELECT id, eligible_from, frequency, amount, label ,status
+        from membership_fees where collectivity_id =?
+                """;
+        try(Connection connection = dataSource.getConnection()){
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, id);
+            ResultSet rs = stmt.executeQuery();
+            List<MembershipFeeDTO> membershipFeeDTOList = new ArrayList<>();
+            if(rs.next()){
+                MembershipFeeDTO membershipFeeDTO = new MembershipFeeDTO();
+                membershipFeeDTO.setId(rs.getString("id"));
+                membershipFeeDTO.setEligibleFrom(rs.getDate("eligible_from").toLocalDate());
+                membershipFeeDTO.setFrequency(FrequencyEnum.valueOf(rs.getString("frequency")));
+                membershipFeeDTO.setAmount(rs.getBigDecimal("amount"));
+                membershipFeeDTO.setLabel(rs.getString("label"));
+                membershipFeeDTO.setStatus(ActivityStatusEnum.valueOf(rs.getString("status")));
+                membershipFeeDTOList.add(membershipFeeDTO);
+            }
+            return membershipFeeDTOList;
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
     }
 }
