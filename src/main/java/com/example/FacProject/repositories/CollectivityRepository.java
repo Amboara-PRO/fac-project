@@ -3,8 +3,10 @@ package com.example.FacProject.repositories;
 import com.example.FacProject.config.DataSource;
 import com.example.FacProject.dto.CollectivityDTO;
 import com.example.FacProject.dto.CreateCollectivityDTO;
+import com.example.FacProject.dto.CreateCollectivityNameAndNumberDTO;
 import com.example.FacProject.entities.CollectivityEntity;
 import com.example.FacProject.entities.CollectivityStructureEntity;
+import com.example.FacProject.exceptions.BadRequestException;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
@@ -44,6 +46,51 @@ public class CollectivityRepository {
                 throw ex;
             }
         }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void assignNamAndNumber(CreateCollectivityNameAndNumberDTO request){
+        String sql = """
+                UPDATE collectivities
+                SET name = ?, number = ?
+                WHERE id like ?;
+                """;
+        String sqlFindbyId = """
+                select id from collectivities where name like ? and number = ?
+                """;
+        String sqlFindbyIdCollectivity = """
+                select id from collectivities where id = ?
+                """;
+        try (Connection connection = dataSource.getConnection()) {
+            try(PreparedStatement stmt = connection.prepareStatement(sqlFindbyIdCollectivity)){
+                stmt.setString(1, request.getCollectivityId());
+                ResultSet rs = stmt.executeQuery();
+                if(!rs.next()){
+                    throw new BadRequestException("Collectivity not found");
+                }
+            }
+            try(PreparedStatement stmt = connection.prepareStatement(sqlFindbyId)){
+                stmt.setString(1, request.getName());
+                stmt.setInt(2, request.getNumber());
+                ResultSet rs = stmt.executeQuery();
+                if(rs.next()){
+                    throw new BadRequestException("Name or Id already exists");
+                }
+            }
+            try(PreparedStatement stmt = connection.prepareStatement(sql)){
+                stmt.setString(1, request.getName());
+                stmt.setInt(2, request.getNumber());
+                stmt.setString(3, request.getCollectivityId());
+
+                int rows = stmt.executeUpdate();
+
+                if (rows == 0) {
+                    throw new RuntimeException("Assignment failed (already assigned or not found)");
+                }
+            }
+
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

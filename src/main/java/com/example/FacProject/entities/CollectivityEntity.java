@@ -7,16 +7,36 @@ public class CollectivityEntity extends OrganizationEntity {
     private Boolean federationApproval;
     private CollectivityStructureEntity structure;
     private List<MemberEntity> members;
+    private String name;
+    private Integer number;
 
-    public CollectivityEntity(String id, String location, Boolean federationApproval, CollectivityStructureEntity structure, List<MemberEntity> members) {
+    public CollectivityEntity(String id, String location, Boolean federationApproval, CollectivityStructureEntity structure, List<MemberEntity> members, String name, Integer number) {
         super(id);
         this.location = location;
         this.federationApproval = federationApproval;
         this.structure = structure;
         this.members = members;
+        this.name = name;
+        this.number = number;
     }
 
     public CollectivityEntity() {
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getNumber() {
+        return number;
+    }
+
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 
     public String getLocation() {

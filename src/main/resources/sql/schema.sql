@@ -9,7 +9,8 @@ CREATE TYPE member_occupation AS ENUM (
 );
 CREATE TABLE collectivities (
                                 id varchar(9) PRIMARY KEY,
-
+                                name varchar(100) unique ,
+                                number int unique ,
                                 location VARCHAR(255),
                                 federation_approval BOOLEAN NOT NULL
 );

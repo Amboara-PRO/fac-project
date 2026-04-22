@@ -2,6 +2,7 @@ package com.example.FacProject.services;
 
 import com.example.FacProject.dto.CollectivityDTO;
 import com.example.FacProject.dto.CreateCollectivityDTO;
+import com.example.FacProject.dto.CreateCollectivityNameAndNumberDTO;
 import com.example.FacProject.dto.MemberDTO;
 import com.example.FacProject.entities.CollectivityEntity;
 import com.example.FacProject.exceptions.BadRequestException;
@@ -72,5 +73,12 @@ public class CollectivityService {
             }
             return list;
 
+    }
+    public String assignNameAndNumber(CreateCollectivityNameAndNumberDTO dto){
+        if (dto.getName() == null || dto.getName().isBlank()) {
+            throw new BadRequestException("Name and number must be provided");
+        }
+        collectivityRepo.assignNamAndNumber(dto);
+        return "Collectivity name and number assigned";
     }
 }
