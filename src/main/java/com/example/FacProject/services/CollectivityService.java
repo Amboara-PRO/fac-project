@@ -10,6 +10,7 @@ import com.example.FacProject.exceptions.NotFoundException;
 import com.example.FacProject.repositories.CollectivityRepository;
 import com.example.FacProject.repositories.CollectivityStructureRepository;
 import com.example.FacProject.repositories.MemberRepository;
+import com.example.FacProject.validators.CollectivityValidator;
 import com.example.FacProject.validators.MemberValidator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,17 +27,19 @@ public class CollectivityService {
     private  MemberRepository memberRepo;
     private  CollectivityStructureRepository structureRepo;
     private  MemberValidator memberValidator;
-
+    private CollectivityValidator collectivityValidator;
     public CollectivityService(
             CollectivityRepository collectivityRepo,
             MemberRepository memberRepo,
             CollectivityStructureRepository structureRepo,
-            MemberValidator memberValidator
+            MemberValidator memberValidator,
+            CollectivityValidator collectivityValidator
     ) {
         this.collectivityRepo = collectivityRepo;
         this.memberRepo = memberRepo;
         this.structureRepo = structureRepo;
         this.memberValidator = memberValidator;
+        this.collectivityValidator = collectivityValidator;
     }
 
     public List<CollectivityDTO> create(List<CreateCollectivityDTO> dtos) {
@@ -75,9 +78,7 @@ public class CollectivityService {
 
     }
     public String assignNameAndNumber(CreateCollectivityNameAndNumberDTO dto){
-        if (dto.getName() == null || dto.getName().isBlank()) {
-            throw new BadRequestException("Name and number must be provided");
-        }
+        collectivityValidator.validator(dto);
         collectivityRepo.assignNamAndNumber(dto);
         return "Collectivity name and number assigned";
     }

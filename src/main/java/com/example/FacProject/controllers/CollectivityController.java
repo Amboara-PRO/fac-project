@@ -31,12 +31,11 @@ public class CollectivityController {
         } catch (NotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
 
     }
-    @PutMapping("/collectivities/{id}/identity")
+    @PutMapping("/collectivities/{id}/informations")
     public ResponseEntity<?> assignIdentity(@PathVariable("id") String collectivityId,@RequestParam String name, @RequestParam Integer number) {
 
         try{
@@ -44,7 +43,7 @@ public class CollectivityController {
             createDTO.setCollectivityId(collectivityId);
             createDTO.setName(name);
             createDTO.setNumber(number);
-            return ResponseEntity.status(201).body(service.assignNameAndNumber(createDTO));
+            return ResponseEntity.status(200).body(service.assignNameAndNumber(createDTO));
         }catch (BadRequestException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (NotFoundException e) {

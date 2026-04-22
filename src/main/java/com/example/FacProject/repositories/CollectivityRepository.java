@@ -56,28 +56,7 @@ public class CollectivityRepository {
                 SET name = ?, number = ?
                 WHERE id like ?;
                 """;
-        String sqlFindbyId = """
-                select id from collectivities where name like ? and number = ?
-                """;
-        String sqlFindbyIdCollectivity = """
-                select id from collectivities where id = ?
-                """;
         try (Connection connection = dataSource.getConnection()) {
-            try(PreparedStatement stmt = connection.prepareStatement(sqlFindbyIdCollectivity)){
-                stmt.setString(1, request.getCollectivityId());
-                ResultSet rs = stmt.executeQuery();
-                if(!rs.next()){
-                    throw new BadRequestException("Collectivity not found");
-                }
-            }
-            try(PreparedStatement stmt = connection.prepareStatement(sqlFindbyId)){
-                stmt.setString(1, request.getName());
-                stmt.setInt(2, request.getNumber());
-                ResultSet rs = stmt.executeQuery();
-                if(rs.next()){
-                    throw new BadRequestException("Name or Id already exists");
-                }
-            }
             try(PreparedStatement stmt = connection.prepareStatement(sql)){
                 stmt.setString(1, request.getName());
                 stmt.setInt(2, request.getNumber());
@@ -93,5 +72,41 @@ public class CollectivityRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Boolean isExist(String collectivityId) {
+        String sql = """
+                select id from collectivities where id = ?;
+                """;
+        try(Connection connection = dataSource.getConnection()){
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, collectivityId);
+            ResultSet rs = stmt.executeQuery();
+            if(!rs.next()){
+                return false;
+            }
+            return true;
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+    }
+    public Boolean isExistByNameAndNumber(String name, Integer number) {
+        String sql = """
+                select id from collectivities where name like ? and number = ?
+                """;
+        try(Connection connection = dataSource.getConnection()){
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, name);
+            stmt.setInt(2, number);
+            ResultSet rs = stmt.executeQuery();
+            if(!rs.next()){
+                return false;
+            }
+            return true;
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
     }
 }

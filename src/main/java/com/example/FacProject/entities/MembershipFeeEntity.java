@@ -6,7 +6,7 @@ import java.time.LocalDate;
 public class MembershipFeeEntity {
 
     private String id;
-    private String collectivityId;
+    private CollectivityEntity collectivity;
     private LocalDate eligibleFrom;
     private FrequencyEnum frequency;
     private BigDecimal amount;
@@ -14,12 +14,9 @@ public class MembershipFeeEntity {
     private ActivityStatusEnum status;
     private BigDecimal federationPercentage;
 
-    public MembershipFeeEntity(String id, String collectivityId,
-                         LocalDate eligibleFrom, FrequencyEnum frequency,
-                         BigDecimal amount, String label,
-                         ActivityStatusEnum status, BigDecimal federationPercentage) {
+    public MembershipFeeEntity(String id, CollectivityEntity collectivity, LocalDate eligibleFrom, FrequencyEnum frequency, BigDecimal amount, String label, ActivityStatusEnum status, BigDecimal federationPercentage) {
         this.id = id;
-        this.collectivityId = collectivityId;
+        this.collectivity = collectivity;
         this.eligibleFrom = eligibleFrom;
         this.frequency = frequency;
         this.amount = amount;
@@ -39,12 +36,12 @@ public class MembershipFeeEntity {
         this.id = id;
     }
 
-    public String getCollectivityId() {
-        return collectivityId;
+    public CollectivityEntity getCollectivity() {
+        return collectivity;
     }
 
-    public void setCollectivityId(String collectivityId) {
-        this.collectivityId = collectivityId;
+    public void setCollectivity(CollectivityEntity collectivity) {
+        this.collectivity = collectivity;
     }
 
     public LocalDate getEligibleFrom() {

@@ -4,7 +4,6 @@ import com.example.FacProject.entities.MemberEntity;
 import com.example.FacProject.exceptions.BadRequestException;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 @Component
 public class MemberValidator {
     public void validateSeniorNumber(Integer value){
