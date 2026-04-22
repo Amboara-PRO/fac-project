@@ -66,7 +66,7 @@ paths:
       summary: Add name and number to an activity
       parameters:
         - name: collectivityId
-          in: query
+          in: path
           required: true
           schema:
             type: string
