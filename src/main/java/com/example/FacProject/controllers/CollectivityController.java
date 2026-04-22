@@ -37,7 +37,7 @@ public class CollectivityController {
 
     }
     @PutMapping("/collectivities/{id}/identity")
-    public ResponseEntity<?> assignIdentity(@PathVariable String collectivityId,@RequestParam String name, @RequestParam Integer number) {
+    public ResponseEntity<?> assignIdentity(@PathVariable("id") String collectivityId,@RequestParam String name, @RequestParam Integer number) {
 
         try{
             CreateCollectivityNameAndNumberDTO createDTO = new CreateCollectivityNameAndNumberDTO();

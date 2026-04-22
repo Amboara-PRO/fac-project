@@ -90,7 +90,6 @@ SELECT id,
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            // Conversion List -> SQL Array (PostgreSQL)
             java.sql.Array sqlArray = connection.createArrayOf(
                     "varchar",
                     ids.toArray()
