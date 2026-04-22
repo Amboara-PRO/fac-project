@@ -3,7 +3,7 @@ CREATE TYPE frequency AS ENUM ('WEEKLY', 'MONTHLY', 'ANNUALLY', 'PUNCTUALLY');
 CREATE TYPE activity_status AS ENUM ('ACTIVE', 'INACTIVE');
 CREATE TYPE payment_mode AS ENUM ('CASH', 'MOBILE_BANKING', 'BANK_TRANSFER');
 CREATE TYPE mobile_service AS ENUM ('AIRTEL_MONEY', 'MVOLA', 'ORANGE_MONEY');
-CREATE TYPE bank_name AS ENUM ('BRED', 'MCB', 'BMOI', 'BOA', 'BGFI', 'AFG', 'ACCES_BAQUE', 'BAOBAB', 'SIPEM');
+CREATE TYPE bank_name AS ENUM ('BRED', 'MCB', 'BMOI', 'BOA', 'BGFI', 'AFG', 'ACCES_BANQUE', 'BAOBAB', 'SIPEM');
 CREATE TYPE member_occupation AS ENUM (
     'JUNIOR',
     'SENIOR',
@@ -37,12 +37,12 @@ CREATE TABLE members (
                          membership_dues_paid BOOLEAN DEFAULT FALSE,
                          federation_join_date DATE,
 
-                         collectivity_id VARCHAR(9),
+                         collectivity_id VARCHAR(9) NOT NULL,
 
                          CONSTRAINT fk_collectivity
                              FOREIGN KEY (collectivity_id)
                                  REFERENCES collectivities(id)
-                                 ON DELETE SET NULL
+                                 ON DELETE CASCADE
 );
 CREATE TABLE member_referees (
                                  member_id VARCHAR(9),
@@ -64,10 +64,10 @@ CREATE TABLE member_referees (
 CREATE TABLE collectivity_structure (
                                         collectivity_id VARCHAR(9) PRIMARY KEY,
 
-                                        president_id VARCHAR(9),
-                                        vice_president_id VARCHAR(9),
-                                        treasurer_id VARCHAR(9),
-                                        secretary_id VARCHAR(9),
+                                        president_id VARCHAR(9) NOT NULL,
+                                        vice_president_id VARCHAR(9) NOT NULL,
+                                        treasurer_id VARCHAR(9) NOT NULL,
+                                        secretary_id VARCHAR(9) NOT NULL,
 
                                         FOREIGN KEY (collectivity_id)
                                             REFERENCES collectivities(id)
@@ -86,6 +86,7 @@ CREATE TABLE membership_fees (
                                  amount DECIMAL(15, 2) NOT NULL CHECK (amount >= 0),
                                  label VARCHAR(255),
                                  status activity_status DEFAULT 'ACTIVE',
+                                 federation_percentage DECIMAL(5,2),
                                  CONSTRAINT fk_fee_collectivity FOREIGN KEY (collectivity_id) REFERENCES collectivities(id) ON DELETE CASCADE
 );
 CREATE TABLE financial_accounts (
@@ -111,13 +112,16 @@ CREATE TABLE bank_accounts (
                                account_number BIGINT,
                                account_key INT
 );
+CREATE TABLE cash_accounts (
+                               account_id VARCHAR(9) PRIMARY KEY REFERENCES financial_accounts(id) ON DELETE CASCADE
+);
 CREATE TABLE transactions (
                               id VARCHAR(9) PRIMARY KEY,
                               creation_date DATE DEFAULT CURRENT_DATE,
                               amount DECIMAL(15, 2) NOT NULL,
                               payment_mode payment_mode NOT NULL,
 
-                              member_id VARCHAR(9) NOT NULL,
+                              member_id VARCHAR(9),
                               membership_fee_id VARCHAR(9),
                               account_id VARCHAR(9) NOT NULL,
 
