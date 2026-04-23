@@ -1,14 +1,10 @@
 package com.example.FacProject.repositories;
 
 import com.example.FacProject.config.DataSource;
-import com.example.FacProject.dto.CollectivityDTO;
 import com.example.FacProject.dto.CollectivityTransactionDTO;
 import com.example.FacProject.dto.CreateCollectivityDTO;
-import com.example.FacProject.dto.CreateCollectivityNameAndNumberDTO;
-import com.example.FacProject.entities.CollectivityEntity;
-import com.example.FacProject.entities.CollectivityStructureEntity;
+import com.example.FacProject.dto.CreateCollectivityInformationsDTO;
 import com.example.FacProject.entities.PaymentModeEnum;
-import com.example.FacProject.exceptions.BadRequestException;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
@@ -18,9 +14,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Level;
 
 @Repository
 public class CollectivityRepository {
@@ -54,23 +48,28 @@ public class CollectivityRepository {
         }
     }
 
-    public void assignNamAndNumber(CreateCollectivityNameAndNumberDTO request){
+    public void assignNamAndNumber(String id,CreateCollectivityInformationsDTO request){
         String sql = """
                 UPDATE collectivities
                 SET name = ?, number = ?
                 WHERE id = ?;
                 """;
         try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
             try(PreparedStatement stmt = connection.prepareStatement(sql)){
                 stmt.setString(1, request.getName());
                 stmt.setInt(2, request.getNumber());
-                stmt.setString(3, request.getCollectivityId());
+                stmt.setString(3, id);
 
                 int rows = stmt.executeUpdate();
 
                 if (rows == 0) {
                     throw new RuntimeException("Assignment failed (already assigned or not found)");
                 }
+                connection.commit();
+            }catch (Exception e) {
+                connection.rollback();
+                throw e;
             }
 
         } catch (SQLException e) {
@@ -97,7 +96,7 @@ public class CollectivityRepository {
     }
     public Boolean isExistByNameAndNumber(String name, Integer number) {
         String sql = """
-                select id from collectivities where name like ? and number = ?
+                select id from collectivities where name = ? and number = ?
                 """;
         try(Connection connection = dataSource.getConnection()){
             PreparedStatement stmt = connection.prepareStatement(sql);

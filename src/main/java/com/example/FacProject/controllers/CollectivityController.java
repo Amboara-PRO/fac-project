@@ -1,9 +1,8 @@
 package com.example.FacProject.controllers;
 
-import com.example.FacProject.dto.CollectivityDTO;
 import com.example.FacProject.dto.CollectivityTransactionDTO;
 import com.example.FacProject.dto.CreateCollectivityDTO;
-import com.example.FacProject.dto.CreateCollectivityNameAndNumberDTO;
+import com.example.FacProject.dto.CreateCollectivityInformationsDTO;
 import com.example.FacProject.exceptions.BadRequestException;
 import com.example.FacProject.exceptions.NotFoundException;
 import com.example.FacProject.services.CollectivityService;
@@ -37,14 +36,10 @@ public class CollectivityController {
 
     }
     @PutMapping("/collectivities/{id}/informations")
-    public ResponseEntity<?> assignIdentity(@PathVariable("id") String collectivityId,@RequestParam String name, @RequestParam Integer number) {
+    public ResponseEntity<?> assignIdentity(@PathVariable("id") String collectivityId, @RequestBody CreateCollectivityInformationsDTO request) {
 
         try{
-            CreateCollectivityNameAndNumberDTO createDTO = new CreateCollectivityNameAndNumberDTO();
-            createDTO.setCollectivityId(collectivityId);
-            createDTO.setName(name);
-            createDTO.setNumber(number);
-            return ResponseEntity.status(200).body(service.assignNameAndNumber(createDTO));
+            return ResponseEntity.status(200).body(service.assignNameAndNumber(collectivityId,request));
         }catch (BadRequestException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (NotFoundException e) {
@@ -60,6 +55,16 @@ public class CollectivityController {
             @PathVariable String id,
             @RequestParam String from,
             @RequestParam String to
+    ) {
+
+        List<CollectivityTransactionDTO> transactions =
+                service.getTransactions(id, from, to);
+
+        return ResponseEntity.ok(transactions);
+    }
+    @GetMapping("/collectivities/{id}/transactions")
+    public ResponseEntity<List<CollectivityTransactionDTO>> getTransactions(
+            @PathVariable(id) String id
     ) {
 
         List<CollectivityTransactionDTO> transactions =

@@ -1,6 +1,6 @@
 package com.example.FacProject.validators;
 
-import com.example.FacProject.dto.CreateCollectivityNameAndNumberDTO;
+import com.example.FacProject.dto.CreateCollectivityInformationsDTO;
 import com.example.FacProject.exceptions.BadRequestException;
 import com.example.FacProject.exceptions.NotFoundException;
 import com.example.FacProject.repositories.CollectivityRepository;
@@ -12,8 +12,8 @@ public class CollectivityValidator {
     public CollectivityValidator(CollectivityRepository collectivityRepo){
         this.collectivityRepo = collectivityRepo;
     }
-    public void validator(CreateCollectivityNameAndNumberDTO dto){
-        validateExists(dto.getCollectivityId());
+    public void validator(String id,CreateCollectivityInformationsDTO dto){
+        validateExists(id);
         if(collectivityRepo.isExistByNameAndNumber(dto.getName(),dto.getNumber())){
             throw new BadRequestException("Name or Id already exists");
         }

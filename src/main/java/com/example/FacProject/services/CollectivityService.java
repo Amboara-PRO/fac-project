@@ -1,7 +1,6 @@
 package com.example.FacProject.services;
 
 import com.example.FacProject.dto.*;
-import com.example.FacProject.entities.CollectivityEntity;
 import com.example.FacProject.exceptions.BadRequestException;
 import com.example.FacProject.exceptions.NotFoundException;
 import com.example.FacProject.repositories.CollectivityRepository;
@@ -9,9 +8,7 @@ import com.example.FacProject.repositories.CollectivityStructureRepository;
 import com.example.FacProject.repositories.MemberRepository;
 import com.example.FacProject.validators.CollectivityValidator;
 import com.example.FacProject.validators.MemberValidator;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -75,9 +72,9 @@ public class CollectivityService {
             return list;
 
     }
-    public String assignNameAndNumber(CreateCollectivityNameAndNumberDTO dto){
-        collectivityValidator.validator(dto);
-        collectivityRepo.assignNamAndNumber(dto);
+    public String assignNameAndNumber(String id,CreateCollectivityInformationsDTO dto){
+        collectivityValidator.validator(id,dto);
+        collectivityRepo.assignNamAndNumber(id,dto);
         return "Collectivity name and number assigned";
     }
     public List<CollectivityTransactionDTO> getTransactions(String id, String from, String to) {
