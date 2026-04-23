@@ -52,16 +52,24 @@ public class CollectivityController {
     }
 
     @GetMapping("/collectivities/{id}/transactions")
-    public ResponseEntity<List<CollectivityTransactionDTO>> getTransactions(
+    public ResponseEntity<?> getTransactions(
             @PathVariable String id,
             @RequestParam String from,
             @RequestParam String to
     ) {
+        try{
+            List<CollectivityTransactionDTO> transactions =
+                    service.getTransactions(id, from, to);
 
-        List<CollectivityTransactionDTO> transactions =
-                service.getTransactions(id, from, to);
+            return ResponseEntity.ok(transactions);
+        }catch (BadRequestException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
 
-        return ResponseEntity.ok(transactions);
     }
 
     @GetMapping("/collectivities/{id}/financialAccounts")

@@ -201,7 +201,7 @@ SELECT id,
             stmt.setString(1, paymentId);
             stmt.setString(2, memberId);
             stmt.setDouble(3, p.getAmount());
-            stmt.setString(4, p.getPaymentMode().name());
+            stmt.setString(4, p.getPaymentMode().toString());
 
             stmt.executeUpdate();
 

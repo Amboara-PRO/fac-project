@@ -164,7 +164,7 @@ public class CollectivityRepository {
         INSERT INTO transactions (
             id, account_id, member_id, amount, payment_mode, creation_date
         )
-        SELECT ?, m.collectivity_id, ?, ?, ?, CURRENT_DATE
+        SELECT ?, m.collectivity_id, ?, ?, ?::payment_mode, CURRENT_DATE
         FROM members m
         WHERE m.id = ?
     """;
