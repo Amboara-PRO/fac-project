@@ -59,8 +59,12 @@ public class CollectivityService {
                         throw new NotFoundException("Member not found");
                     }
 
+
                 }
                 String CollectivityDTOId = collectivityRepo.create(dto);
+                for (String memberId : dto.getMembers()) {
+                    memberRepo.assignToCollectivity(memberId, CollectivityDTOId);
+                }
                 CollectivityDTO collectivityDTO = new CollectivityDTO();
                 collectivityDTO.setId(CollectivityDTOId);
                 collectivityDTO.setMembers(listMembers);

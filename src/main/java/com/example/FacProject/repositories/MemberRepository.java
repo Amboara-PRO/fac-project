@@ -209,4 +209,17 @@ SELECT id,
             throw new RuntimeException(e);
         }
     }
+    public void assignToCollectivity(String memberId, String collectivityId) {
+        String sql = "UPDATE members SET collectivity_id = ? WHERE id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, collectivityId);
+            stmt.setString(2, memberId);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
