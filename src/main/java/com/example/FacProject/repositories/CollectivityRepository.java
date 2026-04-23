@@ -1,20 +1,15 @@
 package com.example.FacProject.repositories;
 
 import com.example.FacProject.config.DataSource;
-import com.example.FacProject.dto.CollectivityTransactionDTO;
-import com.example.FacProject.dto.CreateCollectivityDTO;
-import com.example.FacProject.dto.CreateCollectivityInformationsDTO;
+import com.example.FacProject.dto.*;
 import com.example.FacProject.entities.PaymentModeEnum;
+import com.example.FacProject.exceptions.NotFoundException;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class CollectivityRepository {
@@ -22,6 +17,127 @@ public class CollectivityRepository {
 
     public CollectivityRepository(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+    public Optional<GetCollectivityDTO> findById(String id) {
+        String sql = """
+                select id ,
+                    name,
+                    number,
+                    location from collectivities where id = ?
+                """;
+        try(Connection connection = dataSource.getConnection()){
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, id);
+            ResultSet rs = stmt.executeQuery();
+            GetCollectivityDTO getCollectivityDTO = null;
+            if(rs.next()){
+                getCollectivityDTO = new GetCollectivityDTO();
+                CreateCollectivityInformationsDTO info = new CreateCollectivityInformationsDTO();
+                info.setName(rs.getString("name"));
+                info.setNumber(rs.getInt("number"));
+                getCollectivityDTO.setInformation(info);
+                getCollectivityDTO.setId(rs.getString("id"));
+                getCollectivityDTO.setLocation(rs.getString("location"));
+                getCollectivityDTO.setMembers(findAllMembersById(id));
+                Optional<CollectivityStructureDTO> structureDTO = findStructureById(id);
+                if(structureDTO.isPresent()){
+                    getCollectivityDTO.setStructure(structureDTO.get());
+                }
+                else{
+                    throw new NotFoundException("Collectivity structure not found");
+                }
+            }
+            return Optional.ofNullable(getCollectivityDTO);
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+    public List<MemberDTO> findAllMembersById(String id) {
+        String memberSql = """ 
+SELECT id, 
+                                        first_name, 
+                                        last_name,
+                                        birth_date,
+                                        gender,
+                                        address,
+                                        profession,
+                                        phone_number,
+                                        email,
+                                        occupation
+                                        FROM members WHERE collectivity_id = ? 
+                                        """;
+        String refereesSql = "SELECT referee_id FROM member_referees WHERE member_id = ?";
+
+        try (Connection connection = dataSource.getConnection()) {
+            List<MemberDTO> memberDTOList = new ArrayList<>();
+            MemberDTO dto = null;
+            String memberId = null;
+            try (PreparedStatement pstmt = connection.prepareStatement(memberSql)) {
+                pstmt.setString(1, id);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        dto = new MemberDTO();
+                        memberId = rs.getString("id");
+                        dto.setId(memberId);
+                        dto.setFirstName(rs.getString("first_name"));
+                        dto.setLastName(rs.getString("last_name"));
+
+                        Date bDate = rs.getDate("birth_date");
+                        if (bDate != null) {
+                            dto.setBirthDate(bDate.toLocalDate());
+                        };
+                        dto.setGender(rs.getString("gender"));
+                        dto.setAddress(rs.getString("address"));
+                        dto.setProfession(rs.getString("profession"));
+                        dto.setPhoneNumber(rs.getLong("phone_number"));
+
+                        dto.setEmail(rs.getString("email"));
+                        dto.setOccupation(rs.getString("occupation"));
+                        if (memberId != null) {
+                            List<String> refereeIds = new ArrayList<>();
+                            try (PreparedStatement rstmt = connection.prepareStatement(refereesSql)) {
+                                rstmt.setString(1, memberId);
+                                try (ResultSet rRs = rstmt.executeQuery()) {
+                                    while (rRs.next()) {
+                                        refereeIds.add(rRs.getString("referee_id"));
+                                    }
+                                }
+                            }
+                            dto.setReferees(refereeIds);
+                            memberDTOList.add(dto);
+                        }
+                    }
+                }
+            }
+            return memberDTOList;
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Optional<CollectivityStructureDTO> findStructureById(String id) {
+        String sql = """
+                select president_id,
+                       vice_president_id ,
+                    treasurer_id,
+                     secretary_id from collectivity_structure where collectivity_id = ? 
+        """;
+        try(Connection connection = dataSource.getConnection()){
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, id);
+            ResultSet rs = stmt.executeQuery();
+            CollectivityStructureDTO collectivityStructureDTO = null;
+            if(rs.next()){
+                collectivityStructureDTO = new CollectivityStructureDTO();
+                collectivityStructureDTO.setPresident(rs.getString("president_id"));
+                collectivityStructureDTO.setVicePresident(rs.getString("vice_president_id"));
+                collectivityStructureDTO.setTreasurer(rs.getString("treasurer_id"));
+                collectivityStructureDTO.setSecretary(rs.getString("secretary_id"));
+            }
+            return Optional.ofNullable(collectivityStructureDTO);
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
     public String create(CreateCollectivityDTO requests) {

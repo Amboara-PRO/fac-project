@@ -99,4 +99,15 @@ public class CollectivityService {
 
         return collectivityRepo.findTransactions(id, fromDate, toDate);
     }
+
+    public GetCollectivityDTO getCollectivityById(String id) {
+        if (!collectivityRepo.isExist(id)) {
+            throw new NotFoundException("Collectivity not found");
+        }
+        Optional<GetCollectivityDTO> getCollectivityDTO = collectivityRepo.findById(id);
+        if (getCollectivityDTO.isPresent()) {
+            return getCollectivityDTO.get();
+        }
+        throw new NotFoundException("Collectivity's informations not found");
+    }
 }

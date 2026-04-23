@@ -45,7 +45,6 @@ public class CollectivityController {
         } catch (NotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -62,14 +61,19 @@ public class CollectivityController {
 
         return ResponseEntity.ok(transactions);
     }
-    @GetMapping("/collectivities/{id}/transactions")
-    public ResponseEntity<List<CollectivityTransactionDTO>> getTransactions(
-            @PathVariable(id) String id
+    @GetMapping("/collectivities/{id}")
+    public ResponseEntity<?> getCollectivityById(
+            @PathVariable("id") String id
     ) {
 
-        List<CollectivityTransactionDTO> transactions =
-                service.getTransactions(id, from, to);
-
-        return ResponseEntity.ok(transactions);
+        try{
+            return ResponseEntity.status(200).body(service.getCollectivityById(id));
+        }catch (BadRequestException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 }
