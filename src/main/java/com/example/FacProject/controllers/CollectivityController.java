@@ -62,14 +62,4 @@ public class CollectivityController {
 
         return ResponseEntity.ok(transactions);
     }
-    @GetMapping("/collectivities/{id}/transactions")
-    public ResponseEntity<List<CollectivityTransactionDTO>> getTransactions(
-            @PathVariable(id) String id
-    ) {
-
-        List<CollectivityTransactionDTO> transactions =
-                service.getTransactions(id, from, to);
-
-        return ResponseEntity.ok(transactions);
-    }
 }
