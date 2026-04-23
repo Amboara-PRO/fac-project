@@ -93,9 +93,31 @@ CREATE TABLE financial_accounts (
                                     id VARCHAR(9) PRIMARY KEY,
                                     collectivity_id VARCHAR(9) NOT NULL,
                                     account_type payment_mode NOT NULL,
-                                    balance DECIMAL(15, 2) DEFAULT 0,
+                                    amount DECIMAL(15, 2) DEFAULT 0,
+                                    holder_name varchar(150),
+                                    service VARCHAR(50),
+                                    mobile_number BIGINT,
+                                    bank_name bank_name,
+                                    branch_code int,
+                                    account_number int,
+                                    account_key int,
+
                                     CONSTRAINT fk_account_collectivity FOREIGN KEY (collectivity_id) REFERENCES collectivities(id) ON DELETE CASCADE
 );
+
+ALTER TABLE financial_accounts
+    RENAME COLUMN balance TO amount;
+
+ALTER TABLE financial_accounts
+    ADD COLUMN holder_name VARCHAR(150),
+    ADD COLUMN service VARCHAR(50),
+    ADD COLUMN mobile_number BIGINT,
+    ADD COLUMN bank_name bank_name,
+    ADD COLUMN branch_code INT,
+    ADD COLUMN account_number INT,
+    ADD COLUMN account_key INT;
+ADD COLUMN bank_code INT;
+
 CREATE TABLE mobile_banking_accounts (
                                          account_id VARCHAR(9) PRIMARY KEY REFERENCES financial_accounts(id) ON DELETE CASCADE,
                                          holder_name VARCHAR(150) NOT NULL,

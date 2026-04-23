@@ -1,9 +1,7 @@
 package com.example.FacProject.repositories;
 
 import com.example.FacProject.config.DataSource;
-import com.example.FacProject.dto.CollectivityTransactionDTO;
-import com.example.FacProject.dto.CreateCollectivityDTO;
-import com.example.FacProject.dto.CreateCollectivityInformationsDTO;
+import com.example.FacProject.dto.*;
 import com.example.FacProject.entities.PaymentModeEnum;
 import org.springframework.stereotype.Repository;
 
@@ -185,5 +183,69 @@ public class CollectivityRepository {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<FinancialAccountDTO> getFinancialAccounts(String collectivityId, LocalDate at) {
+
+        String sql = """
+        SELECT id, account_type, holder_name, service, mobile_number,
+               bank_name, bank_code, branch_code, account_number, account_key,
+               amount
+        FROM financial_accounts
+        WHERE collectivity_id = ?
+    """;
+
+        List<FinancialAccountDTO> accounts = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, collectivityId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+
+                String type = rs.getString("account_type");
+
+                switch (type) {
+
+                    case "CASH" -> {
+                        CashAccountDTO dto = new CashAccountDTO();
+                        dto.setId(rs.getString("id"));
+                        dto.setAmount(rs.getDouble("amount"));
+                        accounts.add(dto);
+                    }
+
+                    case "MOBILE" -> {
+                        MobileBankingAccountDTO dto = new MobileBankingAccountDTO();
+                        dto.setId(rs.getString("id"));
+                        dto.setAmount(rs.getDouble("amount"));
+                        dto.setHolderName(rs.getString("holder_name"));
+                        dto.setMobileBankingService(rs.getString("service"));
+                        dto.setMobileNumber(rs.getLong("mobile_number"));
+                        accounts.add(dto);
+                    }
+
+                    case "BANK" -> {
+                        BankAccountDTO dto = new BankAccountDTO();
+                        dto.setId(rs.getString("id"));
+                        dto.setAmount(rs.getDouble("amount"));
+                        dto.setHolderName(rs.getString("holder_name"));
+                        dto.setBankName(rs.getString("bank_name"));
+                        dto.setBankCode(rs.getInt("bank_code"));
+                        dto.setBankBranchCode(rs.getInt("branch_code"));
+                        dto.setBankAccountNumber(rs.getInt("account_number"));
+                        dto.setBankAccountKey(rs.getInt("account_key"));
+                        accounts.add(dto);
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return accounts;
     }
 }

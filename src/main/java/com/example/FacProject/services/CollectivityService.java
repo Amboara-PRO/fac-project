@@ -99,4 +99,14 @@ public class CollectivityService {
 
         return collectivityRepo.findTransactions(id, fromDate, toDate);
     }
+    public List<FinancialAccountDTO> getFinancialAccounts(String id, String at) {
+
+        if (!collectivityRepo.isExist(id)) {
+            throw new NotFoundException("Collectivity not found");
+        }
+
+        LocalDate date = LocalDate.parse(at);
+
+        return collectivityRepo.getFinancialAccounts(id, date);
+    }
 }

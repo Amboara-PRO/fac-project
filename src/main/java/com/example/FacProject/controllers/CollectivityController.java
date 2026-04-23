@@ -3,6 +3,7 @@ package com.example.FacProject.controllers;
 import com.example.FacProject.dto.CollectivityTransactionDTO;
 import com.example.FacProject.dto.CreateCollectivityDTO;
 import com.example.FacProject.dto.CreateCollectivityInformationsDTO;
+import com.example.FacProject.dto.FinancialAccountDTO;
 import com.example.FacProject.exceptions.BadRequestException;
 import com.example.FacProject.exceptions.NotFoundException;
 import com.example.FacProject.services.CollectivityService;
@@ -61,5 +62,24 @@ public class CollectivityController {
                 service.getTransactions(id, from, to);
 
         return ResponseEntity.ok(transactions);
+    }
+
+    @GetMapping("/collectivities/{id}/financialAccounts")
+    public ResponseEntity<?> getFinancialAccounts(
+            @PathVariable String id,
+            @RequestParam String at
+    ) {
+        try {
+            List<FinancialAccountDTO> accounts =
+                    service.getFinancialAccounts(id, at);
+
+            return ResponseEntity.ok(accounts);
+
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 }
