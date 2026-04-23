@@ -77,10 +77,14 @@ public class CollectivityService {
 
     }
 
-    public String assignNameAndNumber(String id,CreateCollectivityInformationsDTO dto){
+    public GetCollectivityDTO assignNameAndNumber(String id,CreateCollectivityInformationsDTO dto){
         collectivityValidator.validator(id,dto);
         collectivityRepo.assignNamAndNumber(id,dto);
-        return "Collectivity name and number assigned";
+        Optional<GetCollectivityDTO> collectivityDTO = collectivityRepo.findById(id);
+        if(collectivityDTO.isPresent()){
+            return collectivityDTO.get();
+        }
+        throw new NotFoundException("Failed to find collectivity");
     }
     public List<CollectivityTransactionDTO> getTransactions(String id, String from, String to) {
 

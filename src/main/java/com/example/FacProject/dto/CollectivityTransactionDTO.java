@@ -11,7 +11,6 @@ public class CollectivityTransactionDTO {
     private Double amount;
     private PaymentModeEnum paymentMode;
 
-    // version simple (IDs seulement)
     private String accountCreditedId;
     private String memberDebitedId;
 
