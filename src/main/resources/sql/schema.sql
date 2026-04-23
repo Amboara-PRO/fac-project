@@ -129,3 +129,10 @@ CREATE TABLE transactions (
                               CONSTRAINT fk_trans_fee FOREIGN KEY (membership_fee_id) REFERENCES membership_fees(id),
                               CONSTRAINT fk_trans_account FOREIGN KEY (account_id) REFERENCES financial_accounts(id)
 );
+CREATE TABLE member_payments (
+                                 id VARCHAR(9) PRIMARY KEY,
+                                 member_id VARCHAR(9),
+                                 amount INT,
+                                 payment_mode payment_mode,
+                                 creation_date DATE
+);

@@ -2,10 +2,12 @@ package com.example.FacProject.repositories;
 
 import com.example.FacProject.config.DataSource;
 import com.example.FacProject.dto.CollectivityDTO;
+import com.example.FacProject.dto.CollectivityTransactionDTO;
 import com.example.FacProject.dto.CreateCollectivityDTO;
 import com.example.FacProject.dto.CreateCollectivityNameAndNumberDTO;
 import com.example.FacProject.entities.CollectivityEntity;
 import com.example.FacProject.entities.CollectivityStructureEntity;
+import com.example.FacProject.entities.PaymentModeEnum;
 import com.example.FacProject.exceptions.BadRequestException;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +15,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -108,5 +112,79 @@ public class CollectivityRepository {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public List<CollectivityTransactionDTO> findTransactions(
+            String collectivityId,
+            LocalDate from,
+            LocalDate to
+    ) {
+
+        String sql = """
+        SELECT id, creation_date, amount, payment_mode, member_id
+        FROM transactions
+        WHERE account_id = ?
+        AND creation_date BETWEEN ? AND ?
+    """;
+
+        List<CollectivityTransactionDTO> list = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, collectivityId);
+            stmt.setDate(2, java.sql.Date.valueOf(from));
+            stmt.setDate(3, java.sql.Date.valueOf(to));
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+
+                CollectivityTransactionDTO dto = new CollectivityTransactionDTO();
+
+                dto.setId(rs.getString("id"));
+                dto.setCreationDate(rs.getDate("creation_date").toLocalDate());
+                dto.setAmount(rs.getDouble("amount"));
+
+                dto.setPaymentMode(
+                        PaymentModeEnum.valueOf(rs.getString("payment_mode"))
+                );
+
+                dto.setMemberDebitedId(rs.getString("member_id"));
+
+                list.add(dto);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return list;
+    }
+    public void saveTransactionFromPayment(String memberId, int amount, PaymentModeEnum mode) {
+
+        String sql = """
+        INSERT INTO transactions (
+            id, account_id, member_id, amount, payment_mode, creation_date
+        )
+        SELECT ?, m.collectivity_id, ?, ?, ?, CURRENT_DATE
+        FROM members m
+        WHERE m.id = ?
+    """;
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, UUID.randomUUID().toString().substring(0, 9));
+            stmt.setString(2, memberId);
+            stmt.setInt(3, amount);
+            stmt.setString(4, mode.name());
+            stmt.setString(5, memberId);
+
+            stmt.executeUpdate();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -1,15 +1,18 @@
 package com.example.FacProject.repositories;
 
 import com.example.FacProject.config.DataSource;
+import com.example.FacProject.dto.CreateMemberPaymentDTO;
 import com.example.FacProject.dto.MemberDTO;
 import com.example.FacProject.entities.*;
 import com.example.FacProject.entities.MemberEntity;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 
 @Repository
@@ -49,7 +52,9 @@ SELECT id,
                         dto.setLastName(rs.getString("last_name"));
 
                         Date bDate = rs.getDate("birth_date");
-                        if (bDate != null) dto.setBirthDate(((java.sql.Date) bDate).toLocalDate());
+                        if (bDate != null) {
+                            dto.setBirthDate(bDate.toLocalDate());
+                        };
                         dto.setGender(rs.getString("gender"));
                         dto.setAddress(rs.getString("address"));
                         dto.setProfession(rs.getString("profession"));
@@ -174,6 +179,29 @@ SELECT id,
 
             stmt.setString(1, memberId);
             stmt.setString(2, refereeId);
+
+            stmt.executeUpdate();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void savePayment(String memberId, String paymentId, CreateMemberPaymentDTO p) {
+
+        String sql = """
+        INSERT INTO member_payments (
+            id, member_id, amount, payment_mode, creation_date
+        )
+        VALUES (?, ?, ?, ?::payment_mode, CURRENT_DATE)
+    """;
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, paymentId);
+            stmt.setString(2, memberId);
+            stmt.setDouble(3, p.getAmount());
+            stmt.setString(4, p.getPaymentMode().name());
 
             stmt.executeUpdate();
 

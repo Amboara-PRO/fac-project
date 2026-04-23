@@ -1,9 +1,6 @@
 package com.example.FacProject.services;
 
-import com.example.FacProject.dto.CollectivityDTO;
-import com.example.FacProject.dto.CreateCollectivityDTO;
-import com.example.FacProject.dto.CreateCollectivityNameAndNumberDTO;
-import com.example.FacProject.dto.MemberDTO;
+import com.example.FacProject.dto.*;
 import com.example.FacProject.entities.CollectivityEntity;
 import com.example.FacProject.exceptions.BadRequestException;
 import com.example.FacProject.exceptions.NotFoundException;
@@ -16,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -81,5 +79,27 @@ public class CollectivityService {
         collectivityValidator.validator(dto);
         collectivityRepo.assignNamAndNumber(dto);
         return "Collectivity name and number assigned";
+    }
+    public List<CollectivityTransactionDTO> getTransactions(String id, String from, String to) {
+
+        if (!collectivityRepo.isExist(id)) {
+            throw new NotFoundException("Collectivity not found");
+        }
+
+        if (from == null || to == null) {
+            throw new BadRequestException("from and to are required");
+        }
+
+        LocalDate fromDate;
+        LocalDate toDate;
+
+        try {
+            fromDate = LocalDate.parse(from);
+            toDate = LocalDate.parse(to);
+        } catch (Exception e) {
+            throw new BadRequestException("Invalid date format");
+        }
+
+        return collectivityRepo.findTransactions(id, fromDate, toDate);
     }
 }

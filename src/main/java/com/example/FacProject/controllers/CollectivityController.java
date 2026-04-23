@@ -1,6 +1,7 @@
 package com.example.FacProject.controllers;
 
 import com.example.FacProject.dto.CollectivityDTO;
+import com.example.FacProject.dto.CollectivityTransactionDTO;
 import com.example.FacProject.dto.CreateCollectivityDTO;
 import com.example.FacProject.dto.CreateCollectivityNameAndNumberDTO;
 import com.example.FacProject.exceptions.BadRequestException;
@@ -52,5 +53,18 @@ public class CollectivityController {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/collectivities/{id}/transactions")
+    public ResponseEntity<List<CollectivityTransactionDTO>> getTransactions(
+            @PathVariable String id,
+            @RequestParam String from,
+            @RequestParam String to
+    ) {
+
+        List<CollectivityTransactionDTO> transactions =
+                service.getTransactions(id, from, to);
+
+        return ResponseEntity.ok(transactions);
     }
 }
