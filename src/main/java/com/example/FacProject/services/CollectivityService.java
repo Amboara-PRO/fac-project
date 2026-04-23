@@ -38,40 +38,45 @@ public class CollectivityService {
     }
 
     public List<CollectivityDTO> create(List<CreateCollectivityDTO> dtos) {
-            List<CollectivityDTO> list = new ArrayList<>();
+        List<CollectivityDTO> list = new ArrayList<>();
 
-            for (CreateCollectivityDTO dto : dtos) {
-                if(!dto.getFederationApproval()|| dto.getStructure() == null){
-                    throw new BadRequestException("Collectivity without federation approval or structure missing");
-                }
-                if(dto.getLocation() == null){
-                    throw new BadRequestException("Collectivity without location missing");
-                }
-                memberValidator.validateMemberCount(dto.getMembers().size());
-                memberValidator.validateSeniorNumber(memberRepo.countSeniorMembers(dto.getMembers()));
-                List<MemberDTO>  listMembers = new ArrayList<>();
-                for (String id : dto.getMembers()) {
-                    Optional<MemberDTO> memberDTO = memberRepo.findById(id);
-                    if(memberDTO.isPresent()){
-                        listMembers.add(memberDTO.get());
-                    }
-                    else{
-                        throw new NotFoundException("Member not found");
-                    }
-
-                }
-                String CollectivityDTOId = collectivityRepo.create(dto);
-                CollectivityDTO collectivityDTO = new CollectivityDTO();
-                collectivityDTO.setId(CollectivityDTOId);
-                collectivityDTO.setMembers(listMembers);
-                collectivityDTO.setLocation(dto.getLocation());
-                collectivityDTO.setStructure(dto.getStructure());
-                list.add(collectivityDTO);
-                structureRepo.createCollectivityStructure(collectivityDTO);
+        for (CreateCollectivityDTO dto : dtos) {
+            if(!dto.getFederationApproval()|| dto.getStructure() == null){
+                throw new BadRequestException("Collectivity without federation approval or structure missing");
             }
-            return list;
+            if(dto.getLocation() == null){
+                throw new BadRequestException("Collectivity without location missing");
+            }
+            memberValidator.validateMemberCount(dto.getMembers().size());
+            memberValidator.validateSeniorNumber(memberRepo.countSeniorMembers(dto.getMembers()));
+            List<MemberDTO>  listMembers = new ArrayList<>();
+            for (String id : dto.getMembers()) {
+                Optional<MemberDTO> memberDTO = memberRepo.findById(id);
+                if(memberDTO.isPresent()){
+                    listMembers.add(memberDTO.get());
+                }
+                else{
+                    throw new NotFoundException("Member not found");
+                }
+
+
+            }
+            String CollectivityDTOId = collectivityRepo.create(dto);
+            for (String memberId : dto.getMembers()) {
+                memberRepo.assignToCollectivity(memberId, CollectivityDTOId);
+            }
+            CollectivityDTO collectivityDTO = new CollectivityDTO();
+            collectivityDTO.setId(CollectivityDTOId);
+            collectivityDTO.setMembers(listMembers);
+            collectivityDTO.setLocation(dto.getLocation());
+            collectivityDTO.setStructure(dto.getStructure());
+            list.add(collectivityDTO);
+            structureRepo.createCollectivityStructure(collectivityDTO);
+        }
+        return list;
 
     }
+
     public String assignNameAndNumber(String id,CreateCollectivityInformationsDTO dto){
         collectivityValidator.validator(id,dto);
         collectivityRepo.assignNamAndNumber(id,dto);
@@ -109,4 +114,15 @@ public class CollectivityService {
 
         return collectivityRepo.getFinancialAccounts(id, date);
     }
+    public GetCollectivityDTO getCollectivityById(String id) {
+        if (!collectivityRepo.isExist(id)) {
+            throw new NotFoundException("Collectivity not found");
+        }
+        Optional<GetCollectivityDTO> getCollectivityDTO = collectivityRepo.findById(id);
+        if (getCollectivityDTO.isPresent()) {
+            return getCollectivityDTO.get();
+        }
+        throw new NotFoundException("Collectivity's informations not found");
+    }
+
 }

@@ -82,4 +82,20 @@ public class CollectivityController {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
+    @GetMapping("/collectivities/{id}")
+    public ResponseEntity<?> getCollectivityById(
+            @PathVariable("id") String id
+    ) {
+
+        try{
+            return ResponseEntity.status(200).body(service.getCollectivityById(id));
+        }catch (BadRequestException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
 }
