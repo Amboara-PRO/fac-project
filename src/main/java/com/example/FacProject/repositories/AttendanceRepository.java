@@ -81,7 +81,7 @@ public class AttendanceRepository {
                           m.occupation
                       FROM activity_attendance a
                       JOIN members m ON a.member_id = m.id
-                      WHERE a.id = ?
+                      WHERE a.id = ? AND (attendance_status = 'ATTENDED' OR attendance_status = 'MISSING')
         """;
 
         try (Connection conn = dataSource.getConnection();
@@ -122,7 +122,7 @@ public class AttendanceRepository {
                       m.occupation
                   FROM activity_attendance a
                   JOIN members m ON a.member_id = m.id
-                  WHERE a.activity_id = ?
+                  WHERE a.activity_id = ? and attendance_status='ATTENDED'
         """;
 
         try (Connection conn = dataSource.getConnection();

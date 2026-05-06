@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AttendanceService {
@@ -33,13 +34,10 @@ public class AttendanceService {
             List<String> activityIds = repository.create(dtos, id, activityId);
             List<ActivityMemberAttendanceDTO> list = new ArrayList<>();
             for (String activityIdentifier : activityIds) {
-                ActivityMemberAttendanceDTO dto = repository.findById(activityIdentifier)
-                        .orElseThrow(() -> new NotFoundException("Activity not found"));
-
-                list.add(dto);
-            }
-            if(list.isEmpty()) {
-                throw new BadRequestException("Updating activity member's attendance status not allowed");
+                Optional<ActivityMemberAttendanceDTO> dto = repository.findById(activityIdentifier);
+                if(dto.isPresent()) {
+                    list.add(dto.get());
+                }
             }
             return list;
         }
