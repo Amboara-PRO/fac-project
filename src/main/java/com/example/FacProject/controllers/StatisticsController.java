@@ -20,7 +20,7 @@ public class StatisticsController {
         this.service = service;
     }
     @GetMapping("/collectivities/{id}/statistics")
-    public ResponseEntity<?> getCollectivityStatistics(
+    public ResponseEntity<?> getCollectivityStatisticsById(
             @PathVariable String id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
