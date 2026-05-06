@@ -2,8 +2,10 @@ package com.example.FacProject.services;
 
 import com.example.FacProject.dto.ActivityDTO;
 import com.example.FacProject.dto.CreateCollectivityActivityDTO;
+import com.example.FacProject.exceptions.BadRequestException;
 import com.example.FacProject.exceptions.NotFoundException;
 import com.example.FacProject.repositories.ActivityRepository;
+import com.example.FacProject.validators.ActivityValidator;
 import com.example.FacProject.validators.CollectivityValidator;
 import org.springframework.stereotype.Service;
 
@@ -15,15 +17,21 @@ import java.util.Optional;
 public class ActivityService {
     private final ActivityRepository repository;
     private CollectivityValidator collectivityValidator;
-    public ActivityService(ActivityRepository repository, CollectivityValidator collectivityValidator) {
+    private ActivityValidator activityValidator;
+    public ActivityService(ActivityRepository repository, CollectivityValidator collectivityValidator, ActivityValidator activityValidator) {
         this.repository = repository;
         this.collectivityValidator = collectivityValidator;
+        this.activityValidator = activityValidator;
     }
     public List<ActivityDTO> getAllActivities(String id){
+        if(id == null){
+            throw new BadRequestException("Mandatory query parameters not provided or malformed");
+        }
         collectivityValidator.validateExists(id);
         return repository.getAllActivities(id);
     }
     public List<ActivityDTO> createActivity(List<CreateCollectivityActivityDTO> dtos, String id){
+        activityValidator.validate(dtos);
         collectivityValidator.validateExists(id);
         List<String> activityIds = repository.createCollectivityActivity(dtos, id);
         List<ActivityDTO> list = new ArrayList<>();

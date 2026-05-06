@@ -187,7 +187,7 @@ CREATE TABLE activities (
 CREATE TABLE activity_attendance (
                                      id VARCHAR(9) PRIMARY KEY,
 
-                                     activity_id VARCHAR(9) NOT NULL,
+                                     activity_id VARCHAR(9) NOT NULL ,
                                      member_id VARCHAR(9) NOT NULL,
 
                                      attendance_status attendance_status NOT NULL DEFAULT 'UNDEFINED',
@@ -204,3 +204,5 @@ CREATE TABLE activity_attendance (
                                              REFERENCES members(id)
                                              ON DELETE CASCADE
 );
+ALTER TABLE activity_attendance
+ADD CONSTRAINT unique_member_activity_attendance UNIQUE (member_id, activity_id);

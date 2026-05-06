@@ -58,10 +58,13 @@ public class ActivityRepository {
                                 .map(MemberOccupationEnum::valueOf)
                                 .toList();
                 dto.setMemberOccupationConcerned(list);
-                MonthlyRecurrenceRule rule = new MonthlyRecurrenceRule();
-                rule.setWeekOrdinal(rs.getInt("recurrence_week_ordinal"));
-                rule.setDayOfWeek(DayOfWeekEnum.valueOf(rs.getString("recurrence_day_of_week")));
-                dto.setRecurrenceRule(rule);
+                String dayOfWeekStr = rs.getString("recurrence_day_of_week");
+                if (dayOfWeekStr != null) {
+                    MonthlyRecurrenceRule rule = new MonthlyRecurrenceRule();
+                    rule.setWeekOrdinal(rs.getInt("recurrence_week_ordinal"));
+                    rule.setDayOfWeek(DayOfWeekEnum.valueOf(dayOfWeekStr));
+                    dto.setRecurrenceRule(rule);
+                }
 
                 Date date = rs.getDate("executive_date");
                 if (date != null) dto.setExecutiveDate(date.toLocalDate());
@@ -172,12 +175,13 @@ public class ActivityRepository {
                                 .map(MemberOccupationEnum::valueOf)
                                 .toList();
                 dto.setMemberOccupationConcerned(list);
-
-                MonthlyRecurrenceRule rule = new MonthlyRecurrenceRule();
-                rule.setWeekOrdinal(rs.getInt("recurrence_week_ordinal"));
-                rule.setDayOfWeek(DayOfWeekEnum.valueOf(rs.getString("recurrence_day_of_week")));
-                dto.setRecurrenceRule(rule);
-
+                String dayOfWeekStr = rs.getString("recurrence_day_of_week");
+                if (dayOfWeekStr != null) {
+                    MonthlyRecurrenceRule rule = new MonthlyRecurrenceRule();
+                    rule.setWeekOrdinal(rs.getInt("recurrence_week_ordinal"));
+                    rule.setDayOfWeek(DayOfWeekEnum.valueOf(dayOfWeekStr));
+                    dto.setRecurrenceRule(rule);
+                }
                 Date date = rs.getDate("executive_date");
                 if (date != null) dto.setExecutiveDate(date.toLocalDate());
             }
@@ -185,5 +189,22 @@ public class ActivityRepository {
         }catch (SQLException e){
             throw new RuntimeException(e);
         }
+    }
+    public Boolean isExist(String collectivityId) {
+        String sql = """
+                select id from activities where id = ?;
+                """;
+        try(Connection connection = dataSource.getConnection()){
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, collectivityId);
+            ResultSet rs = stmt.executeQuery();
+            if(!rs.next()){
+                return false;
+            }
+            return true;
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
     }
 }
