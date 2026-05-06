@@ -155,7 +155,7 @@ LEFT JOIN expected ex ON ex.member_id = m.id;
                                 (DATE_PART('month', p.end_date) - DATE_PART('month', p.start_date)) + 1
                             )
                         WHEN 'ANNUALLY' THEN
-                            mf.amount * (DATE_PART('year', p.end_date) - DATE_PART('year', p.start_date))
+                            mf.amount * EXTRACT(YEAR FROM age(p.end_date, p.start_date))
                         WHEN 'PUNCTUALLY' THEN
                             mf.amount
                     END
@@ -200,8 +200,11 @@ LEFT JOIN expected ex ON ex.member_id = m.id;
             COALESCE(nm.new_members_count, 0) AS newMembersNumber,
 
             CASE
-                WHEN COUNT(ms.id) = 0 THEN 0
-                ELSE ROUND(SUM(ms.is_up_to_date) * 100.0 / COUNT(ms.id), 2)
+                WHEN COUNT(ms.id) FILTER (WHERE ms.expected > 0) = 0 THEN 0
+                ELSE ROUND(
+                    SUM(ms.is_up_to_date) FILTER (WHERE ms.expected > 0) * 100.0
+                    / COUNT(ms.id) FILTER (WHERE ms.expected > 0),
+                2)
             END AS overallMemberCurrentDuePercentage
 
         FROM collectivities c
