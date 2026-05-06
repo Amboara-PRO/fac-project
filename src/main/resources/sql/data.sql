@@ -85,6 +85,7 @@ VALUES
     ('M009', 'Marion', 'Cotillard', '1975-09-30', 'FEMALE', '99 Rue d Hollywood', 'Actrice', 33671727374, 'marion.c@email.com', '2026-04-01'),-- Récent
     ('M010', 'Alain', 'Delon', '1935-11-08', 'MALE', '7 Rue du Samouraï', 'Acteur', 33681828384, 'alain.delon@email.com', '2026-04-01');  -- Récent
 
+
 INSERT INTO collectivities (id, name, number, location, federation_approval)
 VALUES ('COLL001', 'Collectivité A', 1, 'Antananarivo', true);
 
@@ -108,18 +109,25 @@ VALUES
     ('FEE003', 'COLL001', '2025-03-01', 'PUNCTUALLY', 50000, 'Frais exceptionnel', 'ACTIVE');
 
 
-INSERT INTO transactions (id, creation_date, amount, payment_mode, member_id, membership_fee_id, account_id)
+-- INSERT INTO transactions (id, creation_date, amount, payment_mode, member_id, membership_fee_id, account_id)
+-- VALUES
+-- -- Jean paye partiellement
+-- ('T0011', '2025-02-01', 10000, 'CASH', 'M0011', 'FEE001', 'ACC001'),
+-- ('T0012', '2025-02-15', 4000, 'CASH', 'M0011', 'FEE002', 'ACC001'),
+--
+-- -- Marie paye tout
+-- ('T0013', '2025-02-01', 20000, 'CASH', 'M0012', 'FEE001', 'ACC001'),
+-- ('T0014', '2025-02-10', 8000, 'CASH', 'M0012', 'FEE002', 'ACC001'),
+--
+-- -- Paul ne paye rien
+-- ('T0015', '2025-03-10', 0, 'CASH', 'M0013', NULL, 'ACC001');
+
+INSERT INTO transactions (
+    id, creation_date, amount, payment_mode, member_id, membership_fee_id, account_id
+)
 VALUES
--- Jean paye partiellement
-('T0011', '2025-02-01', 10000, 'CASH', 'M0011', 'FEE001', 'ACC001'),
-('T0012', '2025-02-15', 4000, 'CASH', 'M0011', 'FEE002', 'ACC001'),
-
--- Marie paye tout
-('T0013', '2025-02-01', 20000, 'CASH', 'M0012', 'FEE001', 'ACC001'),
-('T0014', '2025-02-10', 8000, 'CASH', 'M0012', 'FEE002', 'ACC001'),
-
--- Paul ne paye rien
-('T0015', '2025-03-10', 0, 'CASH', 'M0013', NULL, 'ACC001');
+    ('TR001', '2026-05-01', 10000, 'CASH', 'MBR001', 'FEE001', 'A1'),
+    ('TR002', '2026-05-02', 10000, 'CASH', 'MBR002', 'FEE001', 'A1');
 
 INSERT INTO members (id, first_name, last_name, email, occupation, collectivity_id, federation_join_date)
 VALUES
@@ -137,9 +145,10 @@ VALUES
 ('M2002', 'Bob', 'Ranaivo', 'bob@test.com', 'SECRETARY', 'COLL002', '2025-01-01'),
 ('M2003', 'Charlie', 'Rakoto', 'charlie@test.com', 'JUNIOR', 'COLL002', '2025-01-01');
 
-INSERT INTO financial_accounts (id, collectivity_id, account_type)
+INSERT INTO financial_accounts (id, collectivity_id, account_type, amount)
 VALUES
-    ('ACC002', 'COLL002', 'CASH');
+    ('A1', 'COL001', 'CASH', 0),
+    ('A2', 'COL-001', 'CASH', 0);
 
 INSERT INTO membership_fees (id, collectivity_id, eligible_from, frequency, amount, label, status)
 VALUES
@@ -159,3 +168,8 @@ VALUES
 
 -- Charlie (rien)
 ('T2005', '2025-03-01', 0, 'CASH', 'M2003', NULL, 'ACC002');
+
+UPDATE members SET federation_join_date = '2026-01-10' WHERE id = 'MBR001';
+UPDATE members SET federation_join_date = '2026-02-15' WHERE id = 'MBR002';
+UPDATE members SET federation_join_date = '2026-03-01' WHERE id = 'MBR003';
+UPDATE members SET federation_join_date = '2025-12-01' WHERE id = 'MBR004';
