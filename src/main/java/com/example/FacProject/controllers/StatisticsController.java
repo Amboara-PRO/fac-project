@@ -36,4 +36,24 @@ public class StatisticsController {
         }
 
     }
+    @GetMapping("/collectivities/statistics")
+    public ResponseEntity<?> getCollectivityStatistics(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
+
+    ){
+        try {
+
+            if (from.isAfter(to)) {
+                throw new BadRequestException("from must be before to");
+            }
+
+            return ResponseEntity.ok(service.getGlobalStatistics(from, to));
+
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
 }

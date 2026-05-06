@@ -1,6 +1,7 @@
 package com.example.FacProject.services;
 
 import com.example.FacProject.dto.CollectivityLocalStatisticsDTO;
+import com.example.FacProject.dto.CollectivityOverallStatisticsDTO;
 import com.example.FacProject.repositories.StatisticsRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,5 +17,8 @@ public class StatisticsService {
     }
     public List<CollectivityLocalStatisticsDTO> getCollectivityStatisticsById(String id, LocalDate from, LocalDate to){
         return repository.findCollectivityStatisticsById(id,from,to);
+    }
+    public List<CollectivityOverallStatisticsDTO> getGlobalStatistics(LocalDate from, LocalDate to){
+        return repository.getGlobalStatistics(from, to);
     }
 }
