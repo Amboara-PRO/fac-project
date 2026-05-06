@@ -12,6 +12,11 @@ CREATE TYPE member_occupation AS ENUM (
     'VICE_PRESIDENT',
     'PRESIDENT'
 );
+CREATE TYPE activity_type AS ENUM ('MEETING', 'TRAINING', 'OTHER');
+
+CREATE TYPE day_of_week AS ENUM ('MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU');
+
+CREATE TYPE attendance_status AS ENUM ('MISSING', 'ATTENDED', 'UNDEFINED');
 CREATE TABLE collectivities (
                                 id varchar(9) PRIMARY KEY,
                                 name varchar(100) unique ,
@@ -157,4 +162,45 @@ CREATE TABLE member_payments (
                                  amount INT,
                                  payment_mode payment_mode,
                                  creation_date DATE
+);
+CREATE TABLE activities (
+                            id VARCHAR(9) PRIMARY KEY,
+
+                            collectivity_id VARCHAR(9) NULL,
+
+                            label VARCHAR(255) NOT NULL,
+
+                            activity_type activity_type NOT NULL,
+                            is_mandatory BOOLEAN DEFAULT FALSE,
+
+                            member_occupations member_occupation[],
+
+                            executive_date DATE,
+                            recurrence_week_ordinal INT CHECK (recurrence_week_ordinal BETWEEN 1 AND 5),
+                            recurrence_day_of_week day_of_week,
+
+                            CONSTRAINT fk_activity_collectivity
+                                FOREIGN KEY (collectivity_id)
+                                    REFERENCES collectivities(id)
+                                    ON DELETE CASCADE
+);
+CREATE TABLE activity_attendance (
+                                     id VARCHAR(9) PRIMARY KEY,
+
+                                     activity_id VARCHAR(9) NOT NULL,
+                                     member_id VARCHAR(9) NOT NULL,
+
+                                     attendance_status attendance_status NOT NULL DEFAULT 'UNDEFINED',
+
+                                     marked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+                                     CONSTRAINT fk_att_activity
+                                         FOREIGN KEY (activity_id)
+                                             REFERENCES activities(id)
+                                             ON DELETE CASCADE,
+
+                                     CONSTRAINT fk_att_member
+                                         FOREIGN KEY (member_id)
+                                             REFERENCES members(id)
+                                             ON DELETE CASCADE
 );
