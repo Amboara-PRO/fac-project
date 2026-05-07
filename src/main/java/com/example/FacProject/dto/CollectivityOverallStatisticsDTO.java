@@ -7,6 +7,8 @@ public class CollectivityOverallStatisticsDTO {
     private Integer newMembersNumber;
     private Double overallMemberCurrentDuePercentage;
 
+    private Double overallMemberAssiduityPercentage;
+
     public CollectivityOverallStatisticsDTO() {}
 
     public CreateCollectivityInformationsDTO getCollectivityInformation() {
@@ -31,5 +33,15 @@ public class CollectivityOverallStatisticsDTO {
 
     public void setOverallMemberCurrentDuePercentage(Double overallMemberCurrentDuePercentage) {
         this.overallMemberCurrentDuePercentage = overallMemberCurrentDuePercentage;
+    }
+    public Double getOverallMemberAssiduityPercentage() {
+        return overallMemberAssiduityPercentage;
+    }
+
+    public void setOverallMemberAssiduityPercentage(
+            Double overallMemberAssiduityPercentage
+    ) {
+        this.overallMemberAssiduityPercentage =
+                overallMemberAssiduityPercentage;
     }
 }

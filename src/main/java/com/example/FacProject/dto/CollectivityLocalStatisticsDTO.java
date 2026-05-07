@@ -9,6 +9,7 @@ public class CollectivityLocalStatisticsDTO {
     private BigDecimal earnedAmount;
     private BigDecimal unpaidAmount;
 
+    private Double assiduitypePercentage;
     public CollectivityLocalStatisticsDTO() {
     }
 
@@ -34,5 +35,10 @@ public class CollectivityLocalStatisticsDTO {
 
     public void setUnpaidAmount(BigDecimal unpaidAmount) {
         this.unpaidAmount = unpaidAmount;
+    }
+
+    public Double getAssiduitypePercentage() { return assiduitypePercentage; }
+    public void setAssiduitypePercentage(Double assiduitypePercentage) {
+        this.assiduitypePercentage = assiduitypePercentage;
     }
 }

@@ -72,7 +72,48 @@ expected AS (
     WHERE mf.status = 'ACTIVE'
       AND mf.eligible_from <= p.end_date
     GROUP BY m.id
-)
+),
+attendance_stats AS (
+            SELECT
+                aa.member_id,
+
+                ROUND(
+                    (
+                        SUM(
+                            CASE
+                                WHEN aa.attendance_status = 'ATTENDED'
+                                THEN 1
+                                ELSE 0
+                            END
+                        ) * 100.0
+                    )
+                    /
+                    NULLIF(
+                        SUM(
+                            CASE
+                                WHEN aa.attendance_status IN ('ATTENDED', 'MISSING')
+                                THEN 1
+                                ELSE 0
+                            END
+                        ),
+                        0
+                    ),
+                    2
+                ) AS assiduity_percentage
+
+            FROM activity_attendance aa
+
+            JOIN activities a
+                ON a.id = aa.activity_id
+
+            JOIN period p ON TRUE
+
+            WHERE a.collectivity_id = ?
+              AND aa.marked_at::date
+                    BETWEEN p.start_date AND p.end_date
+
+            GROUP BY aa.member_id
+        )
 
 SELECT
     m.id,
@@ -86,11 +127,15 @@ SELECT
     GREATEST(
         COALESCE(ex.expected_amount, 0) - COALESCE(e.earned_amount, 0),
         0
-    ) AS "unpaidAmount"
+    ) AS "unpaidAmount",
+    
+    COALESCE(att.assiduity_percentage,0) AS "assiduityPercentage"
+
 
 FROM members_cte m
 LEFT JOIN earned e ON e.member_id = m.id
-LEFT JOIN expected ex ON ex.member_id = m.id;
+LEFT JOIN expected ex ON ex.member_id = m.id
+LEFT JOIN attendance_stats att ON att.member_id = m.id
                 """;
         List<CollectivityLocalStatisticsDTO> list = new ArrayList<>();
 
@@ -101,6 +146,7 @@ LEFT JOIN expected ex ON ex.member_id = m.id;
             stmt.setDate(2, Date.valueOf(to));
             stmt.setString(3, id);
             stmt.setString(4, id);
+            stmt.setString(5, id);
 
             ResultSet rs = stmt.executeQuery();
 
@@ -116,6 +162,7 @@ LEFT JOIN expected ex ON ex.member_id = m.id;
                 dto.setMemberDescription(memberDescriptionDTO);
                 dto.setEarnedAmount(rs.getBigDecimal("earnedAmount"));
                 dto.setUnpaidAmount(rs.getBigDecimal("unpaidAmount"));
+                dto.setAssiduitypePercentage(rs.getDouble("assiduityPercentage"));
                 list.add(dto);
             }
 
@@ -191,7 +238,46 @@ LEFT JOIN expected ex ON ex.member_id = m.id;
             JOIN period p ON TRUE
             WHERE m.federation_join_date BETWEEN p.start_date AND p.end_date
             GROUP BY m.collectivity_id
-        )
+        ),
+         attendance_collectivity AS (
+                    SELECT
+                        a.collectivity_id,
+        
+                        ROUND(
+                            (
+                                SUM(
+                                    CASE
+                                        WHEN aa.attendance_status = 'ATTENDED'
+                                        THEN 1
+                                        ELSE 0
+                                    END
+                                ) * 100.0
+                            )
+                            /
+                            NULLIF(
+                                SUM(
+                                    CASE
+                                        WHEN aa.attendance_status
+                                             IN ('ATTENDED', 'MISSING')
+                                        THEN 1
+                                        ELSE 0
+                                    END
+                                ),
+                                0
+                            ),
+                            2
+                        ) AS overall_assiduity_percentage
+                    FROM activity_attendance aa
+        
+                    JOIN activities a
+                        ON a.id = aa.activity_id
+        
+                    JOIN period p ON TRUE
+        
+                    WHERE aa.marked_at::date
+                            BETWEEN p.start_date AND p.end_date
+                    GROUP BY a.collectivity_id
+                )
 
         SELECT
             c.name,
@@ -206,12 +292,15 @@ LEFT JOIN expected ex ON ex.member_id = m.id;
                     / COUNT(ms.id) FILTER (WHERE ms.expected > 0),
                 2)
             END AS overallMemberCurrentDuePercentage
-
+        
+            COALESCE(ac.overall_assiduity_percentage,0) AS "overallMemberAssiduityPercentage"
+    
         FROM collectivities c
         LEFT JOIN member_status ms ON ms.collectivity_id = c.id
         LEFT JOIN new_members nm ON nm.collectivity_id = c.id
+        LEFT JOIN attendance_collectivity ac ON ac.collectivity_id = c.id
 
-        GROUP BY c.id, c.name, c.number, nm.new_members_count
+        GROUP BY c.id, c.name, c.number, nm.new_members_count, ac.overall_assiduity_percentage  
     """;
 
         List<CollectivityOverallStatisticsDTO> list = new ArrayList<>();
@@ -237,7 +326,7 @@ LEFT JOIN expected ex ON ex.member_id = m.id;
                 dto.setOverallMemberCurrentDuePercentage(
                         rs.getDouble("overallMemberCurrentDuePercentage")
                 );
-
+                dto.setOverallMemberAssiduityPercentage(rs.getDouble("overallMemberAssiduityPercentage"));
                 list.add(dto);
             }
 
