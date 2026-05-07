@@ -16,9 +16,10 @@ public class AttendanceRepository {
         this.dataSource = dataSource;
     }
     public List<String> create(List<CreateActivityMemberAttendanceDTO> dtos,
-                               String collectivityId, String activityId) {
+                               String collectivityId,
+                               String activityId) {
 
-        String sql = """
+        String sqlInsert = """
         INSERT INTO activity_attendance (
             id,
             member_id,
@@ -26,32 +27,75 @@ public class AttendanceRepository {
             attendance_status
         )
         VALUES (?, ?, ?, ?::attendance_status)
-        ON CONFLICT (member_id, activity_id)
-        DO UPDATE SET
-            attendance_status = EXCLUDED.attendance_status
-        WHERE activity_attendance.attendance_status = 'UNDEFINED'
+        RETURNING id;
+    """;
+
+        String sqlUpdate = """
+        UPDATE activity_attendance
+        SET attendance_status = ?::attendance_status
+        WHERE member_id = ?
+          AND activity_id = ?
         RETURNING id;
     """;
 
         try (Connection connection = dataSource.getConnection()) {
+
             connection.setAutoCommit(false);
 
             List<String> result = new ArrayList<>();
 
-            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            try {
 
                 for (CreateActivityMemberAttendanceDTO dto : dtos) {
-                    String id = UUID.randomUUID().toString().substring(0, 9);
 
-                    ps.setString(1, id);
-                    ps.setString(2, dto.getMemberIdentifier());
-                    ps.setString(3, activityId);
-                    ps.setString(4, dto.getStatus().name());
+                    String[] table =
+                            findMemberAndActivityId(
+                                    dto.getMemberIdentifier(),
+                                    activityId
+                            );
+                    if (table == null) {
 
-                    ResultSet rs = ps.executeQuery();
+                        try (PreparedStatement ps =
+                                     connection.prepareStatement(sqlInsert)) {
 
-                    if (rs.next()) {
-                        result.add(rs.getString("id"));
+                            String id =
+                                    UUID.randomUUID()
+                                            .toString()
+                                            .substring(0, 9);
+
+                            ps.setString(1, id);
+                            ps.setString(2, dto.getMemberIdentifier());
+                            ps.setString(3, activityId);
+                            ps.setString(4, dto.getStatus().name());
+
+                            ResultSet rs = ps.executeQuery();
+
+                            if (rs.next()) {
+                                result.add(rs.getString("id"));
+                            }
+                        }
+
+                    }
+
+                    else if (
+                            table[2].equals(
+                                    AttendanceStatusEnum.UNDEFINED.name()
+                            )
+                    ) {
+
+                        try (PreparedStatement ps =
+                                     connection.prepareStatement(sqlUpdate)) {
+
+                            ps.setString(1, dto.getStatus().name());
+                            ps.setString(2, dto.getMemberIdentifier());
+                            ps.setString(3, activityId);
+
+                            ResultSet rs = ps.executeQuery();
+
+                            if (rs.next()) {
+                                result.add(rs.getString("id"));
+                            }
+                        }
                     }
                 }
 
@@ -59,9 +103,10 @@ public class AttendanceRepository {
 
                 return result;
 
-            } catch (SQLException ex) {
+            } catch (Exception e) {
+
                 connection.rollback();
-                throw ex;
+                throw e;
             }
 
         } catch (SQLException e) {
@@ -150,6 +195,39 @@ public class AttendanceRepository {
 
             return result;
         }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+    public String[] findMemberAndActivityId(String memberId, String activityId) {
+
+        String sql = """
+            SELECT member_id, activity_id, attendance_status
+            FROM activity_attendance
+            WHERE member_id = ? AND activity_id = ?;
+            """;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setString(1, memberId);
+            stmt.setString(2, activityId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+
+                String[] table = new String[3];
+
+                table[0] = rs.getString("member_id");
+                table[1] = rs.getString("activity_id");
+                table[2] = rs.getString("attendance_status");
+
+                return table;
+            }
+
+            return null;
+
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
